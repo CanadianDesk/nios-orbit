@@ -1,7 +1,8 @@
 //#include "address_map_nios2.h"
 #include <stdbool.h>
+#include <stdlib.h>
 #define PS2_BASE			0xFF200100
-#define PS2_DUAL_BASE			0xFF200108
+#define PS2_DUAL_BASE		0xFF200108
 //#define LED_BASE			0xFF200000
 
 #define RLEDs ((volatile long *) 0xFF200000)
@@ -10,32 +11,51 @@ bool LEFT_MOUSE_CLICK;
 bool RIGHT_MOUSE_CLICK;
 int X_SIGN_BIT;
 int Y_SIGN_BIT;
-int X_MOVEMENT;
-int Y_MOVEMENT;
 
-int LAST_RECEIVED_KEY;
+bool READY_TO_READ;
 
 int BYTE0 = 0;
 int BYTE1 = 0;
 int BYTE2 = 0;
 
-char currentText[] = "";
+int current_byte = 0;
+
+//half of 640 x 320
+int X_POSITION= 320;
+int Y_POSITION = 240;
+
+int NEW_X_POSITION= 320;
+int NEW_Y_POSITION = 320;
+
+int CURRENT_TEXT_IDX = 0;
+
+
+struct PS2 *const keyboard = ((struct PS2 *) PS2_BASE);
+struct PS2 *const mouse = ((struct PS2 *) PS2_DUAL_BASE);
 
 int main()
 {
-    int current_bit = 0;
+    int TEXT_LENGTH = 20; // size of the array
+    char *CURRENT_TEXT = (char *)malloc(TEXT_LENGTH * sizeof(char)); // allocate memory
     while(1)
     {
-        getMouseData(current_bit);
-        getKeyBoardData(current_bit);
-        current_bit++;
-        if(current_bit == 3)
-        {
-            current_bit = 0;
-        }
-    }
-}
+        getMouseData();
+        getKeyBoardData(CURRENT_TEXT);
 
+        if(LEFT_MOUSE_CLICK)
+        {
+            printf("left mouse clicked ");
+        }
+        if(RIGHT_MOUSE_CLICK)
+        {
+            printf("right mouse clicked ");
+        }
+        
+        //printf("x: %d",X_POSITION);
+        //printf("y: %d",Y_POSITION);
+    }
+    free(CURRENT_TEXT);
+}
 
 struct PS2 {
     volatile unsigned char data;  // The control/status register
@@ -44,11 +64,10 @@ struct PS2 {
     volatile int control; //ps2 control register, dont have to worry about it
 };
 
-struct PS2 *const keyboard = ((struct PS2 *) PS2_BASE);
-struct PS2 *const mouse = ((struct PS2 *) PS2_DUAL_BASE);
 
 
-void getKeyBoardData(current_bit)
+
+void getKeyBoardData(char *CURRENT_TEXT)
 {
     int read_valid = keyboard->RVALID & 0b10000000;
     if(read_valid)
@@ -59,129 +78,223 @@ void getKeyBoardData(current_bit)
         BYTE1 = BYTE2;
         BYTE2 = PS2_data;
     }
-    
+    //this means that a key has been released
     if (BYTE1 == 0xF0) 
     {
         switch (BYTE2) 
         {
             case 0x16: // one pressed
-                if(LAST_RECEIVED_KEY != 0x16)
+                if(READY_TO_READ)
                 {
-                    printf("one pressed");
+                    printf(CURRENT_TEXT);
+                    READY_TO_READ = false;
+                    CURRENT_TEXT[CURRENT_TEXT_IDX] = '1';
+                    CURRENT_TEXT_IDX++;
                 }
-                LAST_RECEIVED_KEY = 0x16;
+                
                 break;
             case 0x1E: // two pressed
-                if(LAST_RECEIVED_KEY != 0x1E)
+                if(READY_TO_READ)
                 {
-                    printf("two pressed");
+                    printf(CURRENT_TEXT);
+                    READY_TO_READ = false;
+                    CURRENT_TEXT[CURRENT_TEXT_IDX] = '2';
+                    CURRENT_TEXT_IDX++;
                 }
-                LAST_RECEIVED_KEY = 0x1E;
+                
                 break;
             case 0x26: // three pressed
-                if(LAST_RECEIVED_KEY != 0x26)
+                if(READY_TO_READ)
                 {
-                    printf("three pressed");
+                    printf(CURRENT_TEXT);
+                    READY_TO_READ = false;
+                    CURRENT_TEXT[CURRENT_TEXT_IDX] = '3';
+                    CURRENT_TEXT_IDX++;
                 }
-                LAST_RECEIVED_KEY = 0x26;
+                
                 break;
             case 0x25: // four pressed
-                if(LAST_RECEIVED_KEY != 0x25)
+                if(READY_TO_READ)
                 {
-                    printf("four pressed");
+                    printf(CURRENT_TEXT);
+                    READY_TO_READ = false;
+                    CURRENT_TEXT[CURRENT_TEXT_IDX] = '4';
+                    CURRENT_TEXT_IDX++;
                 }
-                LAST_RECEIVED_KEY = 0x25;
+                
                 break;
             case 0x2E: // five pressed
-                if(LAST_RECEIVED_KEY != 0x2E)
+                if(READY_TO_READ)
                 {
-                    printf("five pressed");
+                    printf(CURRENT_TEXT);
+                    READY_TO_READ = false;
+                    CURRENT_TEXT[CURRENT_TEXT_IDX] = '5';
+                    CURRENT_TEXT_IDX++;
                 }
-                LAST_RECEIVED_KEY = 0x2E;
+                
                 break;
             case 0x36: // six pressed
-                if(LAST_RECEIVED_KEY != 0x36)
+                if(READY_TO_READ)
                 {
-                    printf("six pressed");
+                    printf(CURRENT_TEXT);
+                    READY_TO_READ = false;
+                    CURRENT_TEXT[CURRENT_TEXT_IDX] = '6';
+                    CURRENT_TEXT_IDX++;
                 }
-                LAST_RECEIVED_KEY = 0x36;
+                
                 
                 break;
             case 0x3D: // seven pressed
-                if(LAST_RECEIVED_KEY != 0x3D)
+                if(READY_TO_READ)
                 {
-                    printf("seven pressed");
+                    printf(CURRENT_TEXT);
+                    READY_TO_READ = false;
+                    CURRENT_TEXT[CURRENT_TEXT_IDX] = '7';
+                    CURRENT_TEXT_IDX++;
                 }
-                LAST_RECEIVED_KEY = 0x3D;
+                
                 
                 break;
             case 0x3E: // eight pressed
-                if(LAST_RECEIVED_KEY != 0x3E)
+                if(READY_TO_READ)
                 {
-                    printf("eight pressed");
+                    printf(CURRENT_TEXT);
+                    READY_TO_READ = false;
+                    CURRENT_TEXT[CURRENT_TEXT_IDX] = '8';
+                    CURRENT_TEXT_IDX++;
                 }
-                LAST_RECEIVED_KEY = 0x3E;
+                
                 
                 break;
             case 0x46: // nine pressed
-                if(LAST_RECEIVED_KEY != 0x46)
+                if(READY_TO_READ)
                 {
-                    printf("nine pressed");
+                    printf(CURRENT_TEXT);
+                    READY_TO_READ = false;
+                    CURRENT_TEXT[CURRENT_TEXT_IDX] = '9';
+                    CURRENT_TEXT_IDX++;
                 }
-                LAST_RECEIVED_KEY = 0x46;
+                
                 
                 break;
             case 0x49: // period ' . ' pressed
-                if(LAST_RECEIVED_KEY != 0x49)
+                if(READY_TO_READ)
                 {
-                    printf("period pressed");
+                    printf(CURRENT_TEXT);
+                    READY_TO_READ = false;
+                    CURRENT_TEXT[CURRENT_TEXT_IDX] = '.';
+                    CURRENT_TEXT_IDX++;
                 }
-                LAST_RECEIVED_KEY = 0x49;
+                
                 
                 break;
             case 0x4E: // minues sign ' - ' pressed
-                if(LAST_RECEIVED_KEY != 0x4E)
+                if(READY_TO_READ)
                 {
-                    printf("minus pressed");
+                    printf(CURRENT_TEXT);
+                    READY_TO_READ = false;
+                    CURRENT_TEXT[CURRENT_TEXT_IDX] = '-';
+                    CURRENT_TEXT_IDX++;
                 }
-                LAST_RECEIVED_KEY = 0x4E;
-                break;
-            case 0x66: // backspace pressed
-                if(LAST_RECEIVED_KEY != 0x66)
-                {
-                    printf("backspace pressed");
-                }
-                LAST_RECEIVED_KEY = 0x66;
-                break;
-            default:
                 
                 break;
+            case 0x66: // backspace pressed
+                if(READY_TO_READ)
+                {
+                    printf(CURRENT_TEXT);
+                    READY_TO_READ = false;
+                    CURRENT_TEXT_IDX = CURRENT_TEXT_IDX - 1;
+                    CURRENT_TEXT[CURRENT_TEXT_IDX] = ' ';
+                }
+                
+                break;
+            default:
+                break;
+            
         }
     }
+    else
+    {
+        READY_TO_READ = true;
+    }
+    
     *RLEDs = BYTE2;
 }
 
 
 
 //get the last 3 bits always, 
-void getMouseData(int current_bit)
+void getMouseData()
 {
-    int PS2_data = mouse->data;
-    if(current_bit == 0)
+    int read_valid = mouse->RVALID & 0b10000000;
+    if(read_valid)
     {
-        LEFT_MOUSE_CLICK = (PS2_data & 0b1);
-        RIGHT_MOUSE_CLICK = (PS2_data & 0b10);
-        X_SIGN_BIT = (PS2_data & 0b10000);
-        Y_SIGN_BIT = (PS2_data & 0b100000);
+        int PS2_data = mouse->data;
+        if(current_byte == 0)
+        {
+            LEFT_MOUSE_CLICK = (PS2_data & 0b1);
+            RIGHT_MOUSE_CLICK = (PS2_data & 0b10);
+            X_SIGN_BIT = (PS2_data & 0b10000);
+            Y_SIGN_BIT = (PS2_data & 0b100000);
+        }
+        else if(current_byte == 1)
+        {
+            //if the sign is negative
+            if(X_SIGN_BIT)
+            {
+                if(X_POSITION < ((PS2_data ^ 0b11111111) + 1))
+                {
+                    NEW_X_POSITION = 0;
+                }
+                else{
+                    NEW_X_POSITION = X_POSITION - ((PS2_data ^ 0b11111111) + 1);
+                }
+            }
+            else
+            {
+                if(X_POSITION + PS2_data > 640)
+                {
+                    NEW_X_POSITION = 640;
+                }
+                else
+                {
+                    NEW_X_POSITION = X_POSITION+ PS2_data;
+                }
+            }
+           X_POSITION = NEW_X_POSITION;
+        }
+        else if(current_byte == 2)
+        {
+            if(Y_SIGN_BIT)
+            {
+                if(Y_POSITION < ((PS2_data ^ 0b11111111) + 1))
+                {
+                    NEW_Y_POSITION = 0;
+                }
+                else{
+                    NEW_Y_POSITION = Y_POSITION - ((PS2_data ^ 0b11111111) + 1);
+                }
+            }
+            else
+            {
+                if(Y_POSITION + PS2_data > 480)
+                {
+                    NEW_Y_POSITION = 480;
+                }
+                else
+                {
+                    NEW_Y_POSITION = Y_POSITION + PS2_data;
+                }
+            }
+            Y_POSITION = NEW_Y_POSITION;
+        }
+        
+        current_byte++;
+        if(current_byte == 3)
+        {
+            current_byte = 0;
+        }
     }
-    else if(current_bit == 1)
-    {
-        X_MOVEMENT = PS2_data;
-    }
-    else if(current_bit == 2)
-    {
-        Y_MOVEMENT = PS2_data;
-    }
+   
 }
-
 
