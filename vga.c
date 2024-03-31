@@ -65,6 +65,7 @@ int main()
         clearScreen(BLACK);
         //draw a box
         plotBox(100, 100, 100, 100, RED, BLACK);
+        plotLetter(2, 3, 'a', RED);
         //write a 1 to the vga front buffer to swap buffers
         vga->front_buffer = 1;
         //polling loop while waiting for the swap to happen
@@ -136,6 +137,14 @@ void clearScreen(short int color)
 
 void plotLetter(int x, int y, char letter, short int color)
 {
+    assert(x >= 0 && x <= 79);
+    assert(y >= 0 && y <= 59);
+
+    volatile int* character_buffer = (int*) 0x09000000;
+
+    volatile int* character_address = character_buffer + (y << 7) + x;
+
+    *character_address = letter;
 }
 
 void plotBackground(int state)
