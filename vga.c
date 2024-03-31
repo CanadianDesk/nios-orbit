@@ -147,6 +147,32 @@ void plotLetter(int x, int y, char letter, short int color)
     *character_address = letter;
 }
 
+
+void plotString(int x, int y, char *string, short int color)
+{
+    assert(x >= 0 && x <= 79);
+    assert(y >= 0 && y <= 59);
+
+    for (int i = 0; string[i] != '\0'; i++)
+    {
+        x = x + i;
+        if (x <= 79)
+        {
+            plotLetter(x, y, string[i], color);
+        }
+        else
+        {
+            x = 0;
+            y++;
+            if (y > 59)
+            {
+                y = 0;
+            }
+            plotLetter(x, y, string[i], color);
+        }
+    }
+}
+
 void plotBackground(int state)
 {
     
