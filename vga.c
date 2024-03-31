@@ -36,6 +36,8 @@ void plotLetter(int x, int y, char letter, short int color);
 void plotString(int x, int y, char *string, short int color);
 //plots a box at the x, y coordinate with the width, height, outline color, and fill color
 void plotBox(int x, int y, int width, int height, short int outline_color, short int fill_color);
+//plot background
+void plotBackground(int state);
 //clears the screen with the color
 void clearScreen(short int color);
 
@@ -134,4 +136,9 @@ void clearScreen(short int color)
 
 void plotLetter(int x, int y, char letter, short int color)
 {
+}
+
+void plotBackground(int state)
+{
+    
 }
