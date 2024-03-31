@@ -29,11 +29,11 @@ void wait_for_v_sync(VGA *vga);
 void initializeVGA(VGA *vga);
 //plots a pixel at the x, y coordinate with the color
 void plotPixel(int x, int y, short int color);
-//plots a letter at the x, y coordinate with the color
+//plots a letter at the x, y
 //uses the character buffer on the De1-SoC
-void plotLetter(int x, int y, char letter, short int color);
-//plots a string at the x, y coordinate with the color
-void plotString(int x, int y, char *string, short int color);
+void plotLetter(int x, int y, char letter);
+//plots a string at the x, y
+void plotString(int x, int y, char *string);
 //plots a box at the x, y coordinate with the width, height, outline color, and fill color
 void plotBox(int x, int y, int width, int height, short int outline_color, short int fill_color);
 //plot background
@@ -65,7 +65,7 @@ int main()
         clearScreen(BLACK);
         //draw a box
         plotBox(100, 100, 100, 100, RED, BLACK);
-        plotLetter(2, 3, 'a', RED);
+        plotString(0, 0, "abcdefghijklmnopqrstuvwxyz1234567890");
         //write a 1 to the vga front buffer to swap buffers
         vga->front_buffer = 1;
         //polling loop while waiting for the swap to happen
@@ -129,47 +129,50 @@ void plotBox(int x, int y, int width, int height, short int outline_color, short
 }
 
 void clearScreen(short int color)
-{
+{   
+    //clear the video buffer
     for (int x = 0; x < X_RES; x++)
         for (int y = 0; y < Y_RES; y++)
             plotPixel(x, y, color);
+
+    //clear the character buffer
+    for (int x = 0; x < 79; x++)
+        for (int y = 0; y < 59; y++)
+            plotLetter(x, y, (char)0);
 }
 
-void plotLetter(int x, int y, char letter, short int color)
+void plotLetter(int x, int y, char letter)
 {
     assert(x >= 0 && x <= 79);
     assert(y >= 0 && y <= 59);
 
     volatile int* character_buffer = (int*) 0x09000000;
 
-    volatile int* character_address = character_buffer + (y << 7) + x;
+    volatile int* character_address = character_buffer | (y << 7) | x;
 
     *character_address = letter;
+
+    printf("Plotting %c at %d, %d", letter, x, y);
 }
 
 
-void plotString(int x, int y, char *string, short int color)
+void plotString(int x, int y, char *string)
 {
     assert(x >= 0 && x <= 79);
     assert(y >= 0 && y <= 59);
 
+    //loop through string
     for (int i = 0; string[i] != '\0'; i++)
     {
-        x = x + i;
-        if (x <= 79)
-        {
-            plotLetter(x, y, string[i], color);
-        }
-        else
-        {
+        x++;
+        //check if x is out of bounds, if so move it to 0
+        if (x - 1 > 79)
             x = 0;
-            y++;
-            if (y > 59)
-            {
-                y = 0;
-            }
-            plotLetter(x, y, string[i], color);
-        }
+        //check bounds for y
+        if (y - 1 > 59)
+            y = 0;
+
+        plotLetter(x - 1, y, string[i]);
     }
 }
 
