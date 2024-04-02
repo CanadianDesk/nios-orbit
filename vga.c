@@ -148,7 +148,7 @@ void plotLetter(int x, int y, char letter)
 
     volatile int* character_buffer = (int*) 0x09000000;
 
-    volatile int* character_address = character_buffer | (y << 7) | x;
+    volatile int* character_address = character_buffer + (y << 7) + x;
 
     *character_address = letter;
 
