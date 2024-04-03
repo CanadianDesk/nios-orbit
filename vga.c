@@ -102,7 +102,7 @@ int main()
         // printf("Writing buffer address: %x\n", pixel_buffer_start);
         //clear the screen
         voidScreen(BLACK);
-        plotBackground(MOON);
+        plotBackground(START, MOON);
         plotRocket(50, false);
         //write a 1 to the vga front buffer to swap buffers
         vga->front_buffer = 1;
