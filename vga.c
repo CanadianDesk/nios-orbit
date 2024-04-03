@@ -52,6 +52,12 @@ enum Planet {
     EARTH
 };
 
+enum State {
+    START,
+    ANIMATION,
+    END
+};
+
 /*==================FUNCTION PROTOTYPES==================*/
 
 //waits for the v_sync signal to be high
@@ -68,9 +74,9 @@ void plotString(int x, int y, char *string);
 //plots a box at the x, y coordinate with the width, height, outline color, and fill color
 void plotBox(int x, int y, int width, int height, short int outline_color, short int fill_color);
 //plot background
-void plotBackground(enum Planet Planet);
+void plotBackground(enum State state, enum Planet planet);
 //clears the screen with the color
-void clearScreen(short int color);
+void voidScreen(short int color);
 //plots the rocket after given an angle in degrees
 void plotRocket(int angle, bool flame_on);
 
@@ -95,7 +101,7 @@ int main()
         //print buffer address
         // printf("Writing buffer address: %x\n", pixel_buffer_start);
         //clear the screen
-        clearScreen(BLACK);
+        voidScreen(BLACK);
         plotBackground(MOON);
         plotRocket(50, false);
         //write a 1 to the vga front buffer to swap buffers
@@ -120,13 +126,13 @@ void initializeVGA(VGA *vga)
     wait_for_v_sync(vga);
     //initialize the pointer to the pixel buffer
     pixel_buffer_start = vga->front_buffer;
-    clearScreen(BLACK);
+    voidScreen(BLACK);
 
     //set buffer 2 to the back buffer
     vga->back_buffer = (int) &Buffer2;
     //set the pixel_buffer_start to the back (drawing) buffer
     pixel_buffer_start = vga->back_buffer;
-    clearScreen(BLACK);
+    voidScreen(BLACK);
 }
 
 void wait_for_v_sync(VGA *vga)
@@ -160,7 +166,7 @@ void plotBox(int x, int y, int width, int height, short int outline_color, short
     }
 }
 
-void clearScreen(short int color)
+void voidScreen(short int color)
 {   
     //clear the video buffer
     for (int x = 0; x < X_RES; x++)
@@ -211,7 +217,7 @@ void plotString(int x, int y, char *string)
     }
 }
 
-void plotBackground(enum Planet planet)
+void plotBackground(enum State state, enum Planet planet)
 {
     for (int y = 0; y < Y_RES; y++)
     {
