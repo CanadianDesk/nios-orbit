@@ -10,6 +10,7 @@
 #define VGA_BASE 0xFF203020
 #define BLACK 0x0000
 #define RED 0xF800
+#define WHITE 0xFFFF
 
 /*==================BITMAPS==================*/
 
@@ -80,6 +81,8 @@ void voidScreen(short int color);
 void plotRocket(const int x_offset, const int y_offset, const double angle, const bool flame_on);
 //clears the character buffer
 void clearCharacters(char c);
+//master drawing function
+void drawCurrentScene(enum State state, enum Planet planet, double angle);
 
 /*==================GLOBALS==================*/
 //using 320 x 240 vga resolution
@@ -99,13 +102,9 @@ int main()
     //main loop
     while (1)
     {   
-        //print buffer address
-        // printf("Writing buffer address: %x\n", pixel_buffer_start);
-        //clear the screen
-        voidScreen(BLACK);
-        plotBackground(START, MOON);
-        plotRocket(128, 150, 45, false);
-        plotString(0, 0, "Salutations, Jonah! Hello Jonah JD Diamond Jonah Cool Boy Barber Cuts JD DJ Diamond DJ Cuts Hair Barber Jonah Cuts Hair Barber Cool Boy Henry Jonah JD Diamond DJ Jonah");
+
+        
+        drawCurrentScene(START, MARS, 0);
         //write a 1 to the vga front buffer to swap buffers
         vga->front_buffer = 1;
         //polling loop while waiting for the swap to happen
@@ -286,4 +285,23 @@ void clearCharacters(char c)
     for (int y = 0; y < 60; y++)
         for (int x = 0; x < 80; x++)
             plotLetter(x, y, c);
+}
+
+void drawCurrentScene(enum State state, enum Planet planet, double angle)
+{
+    plotBackground(state, planet);  
+
+    switch (state)
+    {
+        case START:
+            plotRocket(128, 150, angle, false);
+            plotBox(0, 100, 50, 20, WHITE, BLACK);
+            break;
+        case ANIMATION:
+            break;
+        case END:
+            break;
+        default:
+            break;
+    }
 }
