@@ -1,6 +1,7 @@
 //#include "address_map_nios2.h"
 #include <stdbool.h>
 #include <stdlib.h>
+#include "nios2_ctrl_reg_macros.h"
 #define PS2_BASE			0xFF200100
 #define PS2_DUAL_BASE		0xFF200108
 //#define LED_BASE			0xFF200000
@@ -61,13 +62,25 @@ struct PS2 {
     volatile unsigned char data;  // 8 bits of data
     volatile unsigned char RVALID; //7 bits of unused, and the leftmost bit is RVALID
     volatile short int RAVAIL; // 16 bits of RAVAIL
-    volatile int control; //ps2 control register, dont have to worry about it
+    volatile unsigned char RE; //set to 1 to enable interrupts
+    volatile unsigned char RI_and_CE; //RI is bit 8, tells you if an interrupt is pending. CE tells you if an error has occured
+
 };
 
-void init_PS2()
+void init_interrupts()
 {
-    //setup
     
+    
+    //write 1 to control register 0
+    NIOS2_WRITE_STATUS(1); // enable Nios II interrupts
+    //write 1 to IRQ7 and IRQ23
+    NIOS2_WRITE_IENABLE(0x3);
+    //write 1 to RE to enable interrupts
+    keyboard->RE = 0b00000001;
+    mouse->RE = 0b00000001;
+
+    
+
 }
 
 
