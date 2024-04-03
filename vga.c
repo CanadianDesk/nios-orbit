@@ -17,9 +17,40 @@
 #define RED 0xF800
 #define WHITE 0xFFFF
 
+/*==================STRUCTS==================*/
+
+typedef struct VGA {
+    volatile int front_buffer;
+    volatile int back_buffer;
+    volatile short x_res;
+    volatile short y_res;
+    volatile int status;
+    volatile int control;
+} VGA;
+
+enum Planet {
+    MOON,
+    MARS,
+    DARSAN,
+    EARTH
+};
+
+enum State {
+    START,
+    ANIMATION,
+    END
+};
+
+struct PS2 {
+    volatile unsigned char data;  // 8 bits of data
+    volatile unsigned char RVALID; //7 bits of unused, and the leftmost bit is RVALID
+    volatile short int RAVAIL; // 16 bits of RAVAIL
+    volatile int control; //ps2 control register, dont have to worry about it
+};
 
 
-//GLOBALS
+/*==================GLOBALS==================*/
+
 bool LEFT_MOUSE_CLICK;
 bool RIGHT_MOUSE_CLICK;
 int X_SIGN_BIT;
@@ -34,11 +65,11 @@ int BYTE2 = 0;
 int current_byte = 0;
 
 //half of 640 x 320
-int X_POSITION= 320;
-int Y_POSITION = 240;
+int X_POSITION= 160;
+int Y_POSITION = 120;
 
-int NEW_X_POSITION= 320;
-int NEW_Y_POSITION = 320;
+int NEW_X_POSITION= 160;
+int NEW_Y_POSITION = 120;
 
 int CURRENT_TEXT_IDX = 0;
 
@@ -74,36 +105,6 @@ const unsigned short cursor[] = {
 0x1880, 0x20a0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x20a0, 0xbba0, 0x9b20, 0x51a0, 0x840, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x9b00, 0xfd60, 0xfd00, 0xcc00, 0x8280, 0x3920, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x5180, 0xfd00, 0xfd00, 0xfd20, 0xfd20, 0xf4c0, 0xb380, 0x6a20, 0x28c0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1040, 0xcc00, 0xfd20, 0xfd00, 0xfd00, 0xfd00, 0xfd20, 0xfd20, 0xe480, 0x9b00, 0x59c0, 0x1060, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8280, 0xfd20, 0xfd00, 0xfd00, 0xfd00, 0xfd00, 0xfd00, 0xfd00, 0xfd20, 0xfd00, 0xd420, 0x8ac0, 0x4980, 0x1040, 0x0, 0x0, 0x3920, 0xf4c0, 0xfd00, 0xfd00, 0xfd00, 0xfd00, 0xfd00, 0xfd00, 0xfd20, 0xfd20, 0xfd20, 0xe480, 0x8ac0, 0x1860, 0x0, 0x0, 0x0, 0xb380, 0xfd20, 0xfd00, 0xfd00, 0xfd00, 0xfd20, 0xfce0, 0xd420, 0x92e0, 0x59c0, 0x1880, 0x0, 0x0, 0x0, 0x0, 0x0, 0x6a00, 0xfd20, 0xfd00, 0xfd00, 0xfd20, 0xb380, 0x4960, 0x1060, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x20c0, 0xe480, 0xfd00, 0xfd00, 0xfce0, 0x4160, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x9b00, 0xfd20, 0xfd20, 0xd420, 0x1060, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x51a0, 0xfd00, 0xfd20, 0x92c0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1060, 0xd420, 0xfd20, 0x51a0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8ac0, 0xec80, 0x1880, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4980, 0x8aa0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x840, 0x1060, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
 };
 
-/*==================STRUCTS==================*/
-
-typedef struct VGA {
-    volatile int front_buffer;
-    volatile int back_buffer;
-    volatile short x_res;
-    volatile short y_res;
-    volatile int status;
-    volatile int control;
-} VGA;
-
-enum Planet {
-    MOON,
-    MARS,
-    DARSAN,
-    EARTH
-};
-
-enum State {
-    START,
-    ANIMATION,
-    END
-};
-
-struct PS2 {
-    volatile unsigned char data;  // 8 bits of data
-    volatile unsigned char RVALID; //7 bits of unused, and the leftmost bit is RVALID
-    volatile short int RAVAIL; // 16 bits of RAVAIL
-    volatile int control; //ps2 control register, dont have to worry about it
-};
 
 
 /*==================FUNCTION PROTOTYPES==================*/
@@ -136,7 +137,7 @@ void drawCursor(int x, int y);
 //gets the mouse data
 void getMouseData();
 //gets the keyboard data
-void getKeyboardData(char *CURRENT_TEXT);
+void getKeyBoardData(char *CURRENT_TEXT);
 
 /*==================GLOBALS==================*/
 //using 320 x 240 vga resolution
@@ -173,9 +174,11 @@ int main()
         {
             printf("right mouse clicked ");
         }
-        
+
+        plotString(0, 0, CURRENT_TEXT);
+    
         //draw everything
-        drawCurrentScene(START, MARS, 0, 0, 0);
+        drawCurrentScene(START, MARS, 0, X_POSITION, Y_POSITION);
         //write a 1 to the vga front buffer to swap buffers
         vga->front_buffer = 1;
         //polling loop while waiting for the swap to happen
@@ -411,60 +414,60 @@ void getKeyBoardData(char *CURRENT_TEXT)
             case 0x16: // one pressed
                 if(READY_TO_READ)
                 {
-                    printf(CURRENT_TEXT);
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '1';
                     CURRENT_TEXT_IDX++;
+                    // printf("%s\n", CURRENT_TEXT);
                 }
                 
                 break;
             case 0x1E: // two pressed
                 if(READY_TO_READ)
                 {
-                    printf(CURRENT_TEXT);
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '2';
                     CURRENT_TEXT_IDX++;
+                    // printf("%s\n", CURRENT_TEXT);
                 }
                 
                 break;
             case 0x26: // three pressed
                 if(READY_TO_READ)
                 {
-                    printf(CURRENT_TEXT);
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '3';
                     CURRENT_TEXT_IDX++;
+                    // printf("%s\n", CURRENT_TEXT);
                 }
                 
                 break;
             case 0x25: // four pressed
                 if(READY_TO_READ)
                 {
-                    printf(CURRENT_TEXT);
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '4';
                     CURRENT_TEXT_IDX++;
+                    // printf("%s\n", CURRENT_TEXT);
                 }
                 
                 break;
             case 0x2E: // five pressed
                 if(READY_TO_READ)
                 {
-                    printf(CURRENT_TEXT);
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '5';
                     CURRENT_TEXT_IDX++;
+                    // printf("%s\n", CURRENT_TEXT);
                 }
                 
                 break;
             case 0x36: // six pressed
                 if(READY_TO_READ)
                 {
-                    printf(CURRENT_TEXT);
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '6';
                     CURRENT_TEXT_IDX++;
+                    // printf("%s\n", CURRENT_TEXT);
                 }
                 
                 
@@ -472,10 +475,10 @@ void getKeyBoardData(char *CURRENT_TEXT)
             case 0x3D: // seven pressed
                 if(READY_TO_READ)
                 {
-                    printf(CURRENT_TEXT);
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '7';
                     CURRENT_TEXT_IDX++;
+                    // printf("%s\n", CURRENT_TEXT);
                 }
                 
                 
@@ -483,10 +486,10 @@ void getKeyBoardData(char *CURRENT_TEXT)
             case 0x3E: // eight pressed
                 if(READY_TO_READ)
                 {
-                    printf(CURRENT_TEXT);
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '8';
                     CURRENT_TEXT_IDX++;
+                    // printf("%s\n", CURRENT_TEXT);
                 }
                 
                 
@@ -494,10 +497,10 @@ void getKeyBoardData(char *CURRENT_TEXT)
             case 0x46: // nine pressed
                 if(READY_TO_READ)
                 {
-                    printf(CURRENT_TEXT);
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '9';
                     CURRENT_TEXT_IDX++;
+                    // printf("%s\n", CURRENT_TEXT);
                 }
                 
                 
@@ -505,10 +508,10 @@ void getKeyBoardData(char *CURRENT_TEXT)
             case 0x49: // period ' . ' pressed
                 if(READY_TO_READ)
                 {
-                    printf(CURRENT_TEXT);
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '.';
                     CURRENT_TEXT_IDX++;
+                    // printf("%s\n", CURRENT_TEXT);
                 }
                 
                 
@@ -516,20 +519,20 @@ void getKeyBoardData(char *CURRENT_TEXT)
             case 0x4E: // minues sign ' - ' pressed
                 if(READY_TO_READ)
                 {
-                    printf(CURRENT_TEXT);
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '-';
                     CURRENT_TEXT_IDX++;
+                    // printf("%s\n", CURRENT_TEXT);
                 }
                 
                 break;
             case 0x66: // backspace pressed
                 if(READY_TO_READ)
                 {
-                    printf(CURRENT_TEXT);
                     READY_TO_READ = false;
                     CURRENT_TEXT_IDX = CURRENT_TEXT_IDX - 1;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = ' ';
+                    // printf("%s\n", CURRENT_TEXT);
                 }
                 
                 break;
@@ -552,8 +555,14 @@ void getKeyBoardData(char *CURRENT_TEXT)
 void getMouseData()
 {
     int read_valid = mouse->RVALID & 0b10000000;
+    char* poo;
+    // sprintf(poo, "%i", (int) mouse->RVALID);
+    // clearCharacters(' ');
+    // plotString(0, 0, poo);
+    // printf("da tingy: %d\n");
     if(read_valid)
     {
+        printf("Dog\n");
         int PS2_data = mouse->data;
         if(current_byte == 0)
         {
@@ -622,4 +631,3 @@ void getMouseData()
     }
    
 }
-
