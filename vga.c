@@ -3,9 +3,6 @@
 #include <assert.h>
 #include <stdio.h>
 #include <math.h>
-
-#include <stdbool.h>
-#include <stdlib.h>
 #define PS2_BASE			0xFF200100
 #define PS2_DUAL_BASE		0xFF200108
 //#define LED_BASE			0xFF200000
@@ -136,7 +133,10 @@ void clearCharacters(char c);
 void drawCurrentScene(enum State state, enum Planet planet, double angle, int cursor_x, int cursor_y);
 //draws the cursor
 void drawCursor(int x, int y);
-
+//gets the mouse data
+void getMouseData();
+//gets the keyboard data
+void getKeyboardData(char *CURRENT_TEXT);
 
 /*==================GLOBALS==================*/
 //using 320 x 240 vga resolution
