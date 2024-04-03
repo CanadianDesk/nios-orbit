@@ -77,7 +77,7 @@ void plotBackground(enum State state, enum Planet planet);
 //clears the screen with the color
 void voidScreen(short int color);
 //plots the rocket after given an angle in degrees
-void plotRocket(const int x_offset, const int y_offset, const int angle, const bool flame_on);
+void plotRocket(const int x_offset, const int y_offset, const double angle, const bool flame_on);
 //clears the character buffer
 void clearCharacters(char c);
 
@@ -104,7 +104,7 @@ int main()
         //clear the screen
         voidScreen(BLACK);
         plotBackground(START, MOON);
-        plotRocket(128, 150, 0, false);
+        plotRocket(128, 150, 45, false);
         plotString(0, 0, "Salutations, Jonah! Hello Jonah JD Diamond Jonah Cool Boy Barber Cuts JD DJ Diamond DJ Cuts Hair Barber Jonah Cuts Hair Barber Cool Boy Henry Jonah JD Diamond DJ Jonah");
         //write a 1 to the vga front buffer to swap buffers
         vga->front_buffer = 1;
@@ -250,7 +250,7 @@ void plotBackground(enum State state, enum Planet planet)
     }
 }
 
-void plotRocket(const int x_offset, const int y_offset, int angle, const bool flame_on) 
+void plotRocket(const int x_offset, const int y_offset, double angle, const bool flame_on) 
 {   
 
     //check angle
@@ -274,7 +274,7 @@ void plotRocket(const int x_offset, const int y_offset, int angle, const bool fl
         for (int y = 0; y < 64; y++)
             for (int x = 0; x < 64; x++)
             {
-                if (rocket[y * 64 + x] == BLACK)
+                if (flame_on ? rocket_flame[y * 64 + x] : rocket[y * 64 + x] == 0xf81f || flame_on ? rocket_flame[y * 64 + x] : rocket[y * 64 + x] == 0xf81e)
                     continue;
                 plotPixel(x_offset + (x*cos(angle) - y*sin(angle)), y_offset + (x*sin(angle) + y*cos(angle)), flame_on ? rocket_flame[y * 64 + x] : rocket[y * 64 + x]);
             }
