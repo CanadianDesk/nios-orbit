@@ -86,9 +86,10 @@ void plotRocket(const int x_offset, const int y_offset, const double angle, cons
 //clears the character buffer
 void clearCharacters(char c);
 //master drawing function
-void drawCurrentScene(enum State state, enum Planet planet, double angle);
+void drawCurrentScene(enum State state, enum Planet planet, double angle, int cursor_x, int cursor_y);
 //draws the cursor
 void drawCursor(int x, int y);
+
 
 /*==================GLOBALS==================*/
 //using 320 x 240 vga resolution
@@ -108,9 +109,11 @@ int main()
     //main loop
     while (1)
     {   
-
+        //POLLING TASKS HERE (MOUSE, KEYBOARD, ETC:)
         
-        drawCurrentScene(START, MARS, 0);
+        
+        //draw everything
+        drawCurrentScene(START, MARS, 0, 0, 0);
         //write a 1 to the vga front buffer to swap buffers
         vga->front_buffer = 1;
         //polling loop while waiting for the swap to happen
@@ -293,15 +296,15 @@ void clearCharacters(char c)
             plotLetter(x, y, c);
 }
 
-void drawCurrentScene(enum State state, enum Planet planet, double angle)
+void drawCurrentScene(enum State state, enum Planet planet, double angle, int cursor_x, int cursor_y)
 {
     plotBackground(state, planet);  
-    drawCursor(144, 104);
+    drawCursor(cursor_x, cursor_y);
     switch (state)
     {
         case START:
             plotRocket(128, 150, angle, false);
-            plotBox(0, 100, 50, 12, WHITE, BLACK);
+            plotBox(0, 100, 50, 12, WHITE, (cursor_x < 50 && cursor_y > 100 && cursor_y < 112) ? RED : BLACK);
             char* angle_string; 
             sprintf(angle_string, "Angle: %.3d", angle);
             plotString(1, 26, angle_string);
@@ -315,9 +318,12 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle)
     }
 }
 
-drawCursor(int x, int y)
+void drawCursor(int x, int y)
 {
     for (int i = 0; i < 16; i++)
         for (int j = 0; j < 16; j++)
+        {
+            if (cursor[i * 16 + j] == BLACK) continue;
             plotPixel(x + i, y + j, cursor[i * 16 + j]);
+        }
 }
