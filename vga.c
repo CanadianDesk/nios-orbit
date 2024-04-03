@@ -295,7 +295,10 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle)
     {
         case START:
             plotRocket(128, 150, angle, false);
-            plotBox(0, 100, 50, 20, WHITE, BLACK);
+            plotBox(0, 100, 50, 12, WHITE, BLACK);
+            char* angle_string; 
+            sprintf(angle_string, "Angle: %.3d", angle);
+            plotString(1, 26, angle_string);
             break;
         case ANIMATION:
             break;
