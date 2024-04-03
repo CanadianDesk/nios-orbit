@@ -77,7 +77,9 @@ void plotBackground(enum State state, enum Planet planet);
 //clears the screen with the color
 void voidScreen(short int color);
 //plots the rocket after given an angle in degrees
-void plotRocket(int angle, bool flame_on);
+void plotRocket(const int x_offset, const int y_offset, const int angle, const bool flame_on);
+//clears the character buffer
+void clearCharacters(char c);
 
 /*==================GLOBALS==================*/
 //using 320 x 240 vga resolution
@@ -102,7 +104,8 @@ int main()
         //clear the screen
         voidScreen(BLACK);
         plotBackground(START, MOON);
-        plotRocket(50, false);
+        plotRocket(128, 150, 0, false);
+        plotString(0, 0, "Salutations, Jonah! Hello Jonah JD Diamond Jonah Cool Boy Barber Cuts JD DJ Diamond DJ Cuts Hair Barber Jonah Cuts Hair Barber Cool Boy Henry Jonah JD Diamond DJ Jonah");
         //write a 1 to the vga front buffer to swap buffers
         vga->front_buffer = 1;
         //polling loop while waiting for the swap to happen
@@ -132,6 +135,7 @@ void initializeVGA(VGA *vga)
     //set the pixel_buffer_start to the back (drawing) buffer
     pixel_buffer_start = vga->back_buffer;
     voidScreen(BLACK);
+    clearCharacters(' ');
 }
 
 void wait_for_v_sync(VGA *vga)
@@ -183,31 +187,37 @@ void plotLetter(int x, int y, char letter)
     char* character_buffer = (char*) 0x09000000;
 
     //print the x and y coordinates
-    printf("X: %d, Y: %d\n", x, y);
+    // printf("X: %d, Y: %d\n", x, y);
 
     char* character_address = (char*) (character_buffer + (y << 7) + x);
 
-    printf("Character address: %x\n", character_address);
+    // printf("Character address: %x\n", character_address);
 
     *character_address = letter;
 }
 
 
-void plotString(int x, int y, char *string)
+void plotString(const int init_x, const int init_y, char *string)
 {
     //asserts
-    assert(x >= 0);
-    assert(y >= 0);
-    assert(x <= 79);
-    assert(y <= 59);
+    assert(init_x >= 0);
+    assert(init_y >= 0);
+    assert(init_x <= 79);
+    assert(init_y <= 59);
 
+    int x;
+    int y;
     //loop through string
     for (int i = 0; string[i] != '\0'; i++)
     {
-        x++;
+        x = init_x + i;
+        y = init_y;
         //check if x is out of bounds, if so move it to 0
-        if (x == 80)
-            x = 0;
+        if (x > 79)
+        {
+            x = x % 80;
+            y++;
+        }
         //check bounds for y
         if (y == 60)
             y = 0;
@@ -240,11 +250,8 @@ void plotBackground(enum State state, enum Planet planet)
     }
 }
 
-void plotRocket(int angle, bool flame_on) 
+void plotRocket(const int x_offset, const int y_offset, int angle, const bool flame_on) 
 {   
-    const int x_offset = 150;
-    const int y_offset = 100;
-
 
     //check angle
     if (angle == 0)
@@ -252,8 +259,7 @@ void plotRocket(int angle, bool flame_on)
         for (int y = 0; y < 64; y++)
             for (int x = 0; x < 64; x++)
             {
-                if(rocket[y * 64 + x] == BLACK)
-                    continue;
+                if(flame_on ? rocket_flame[y * 64 + x] : rocket[y * 64 + x] == 0xf81f || flame_on ? rocket_flame[y * 64 + x] : rocket[y * 64 + x] == 0xf81e) continue;
                 plotPixel(x + x_offset, y + y_offset, flame_on ? rocket_flame[y * 64 + x] : rocket[y * 64 + x]);
             }
     }
@@ -273,4 +279,11 @@ void plotRocket(int angle, bool flame_on)
                 plotPixel(x_offset + (x*cos(angle) - y*sin(angle)), y_offset + (x*sin(angle) + y*cos(angle)), flame_on ? rocket_flame[y * 64 + x] : rocket[y * 64 + x]);
             }
     }
+}
+
+void clearCharacters(char c)
+{
+    for (int y = 0; y < 60; y++)
+        for (int x = 0; x < 80; x++)
+            plotLetter(x, y, c);
 }
