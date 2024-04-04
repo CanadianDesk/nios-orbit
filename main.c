@@ -153,6 +153,8 @@ void getKeyBoardData(char *CURRENT_TEXT);
 //init mouse
 void initializeMouse();
 
+void disableMouse();
+
 /*==================GLOBALS==================*/
 //using 320 x 240 vga resolution
 volatile int pixel_buffer_start; 
@@ -178,7 +180,10 @@ int main()
     while (1)
     {   
         //POLLING TASKS HERE (MOUSE, KEYBOARD, ETC:)
+        mouse->data = 0xf4;
+        while(mouse->data != 0xfa);
         getMouseData();
+        disableMouse();
   
         if(CURRENT_STATE < 5 || CURRENT_STATE > 1)
             getKeyBoardData(strings[CURRENT_STATE]);
@@ -203,154 +208,154 @@ int main()
 }
 
 //finds the next state of the fsm depending on the current state
-enum State ControlPath(enum State CURRENT_STATE)
-{
-    enum State NEXT_STATE;
-     //CONTROL PATH
-    switch(CURRENT_STATE)
-    {
-        case TITLE:
-            //if the cursor's x and y position are where the start button is, and left click is true
-            NEXT_STATE = START;
-            break;
-            //else 
-            // NEXT_STATE = TITLE;
-        case START:
-            if(LEFT_MOUSE_CLICK)
-            {
-                //if the x y position are where the change angle bar is
-                NEXT_STATE = CHANGE_ANGLE;
+// enum State ControlPath(enum State CURRENT_STATE)
+// {
+//     enum State NEXT_STATE;
+//      //CONTROL PATH
+//     switch(CURRENT_STATE)
+//     {
+//         case TITLE:
+//             //if the cursor's x and y position are where the start button is, and left click is true
+//             NEXT_STATE = START;
+//             break;
+//             //else 
+//             // NEXT_STATE = TITLE;
+//         case START:
+//             if(LEFT_MOUSE_CLICK)
+//             {
+//                 //if the x y position are where the change angle bar is
+//                 NEXT_STATE = CHANGE_ANGLE;
 
-                //if the x y position are where the change speed bar is
-                NEXT_STATE = CHANGE_SPEED;
+//                 //if the x y position are where the change speed bar is
+//                 NEXT_STATE = CHANGE_SPEED;
 
-                //if the x y position are where the change mass bar is
-                NEXT_STATE = CHANGE_MASS;
+//                 //if the x y position are where the change mass bar is
+//                 NEXT_STATE = CHANGE_MASS;
 
-                //if the x y position are where the launch rocket button is
-                NEXT_STATE = ROCKET_READY;
+//                 //if the x y position are where the launch rocket button is
+//                 NEXT_STATE = ROCKET_READY;
 
-                //if the x y position are where the change planet button is
-                NEXT_STATE = CHANGE_PLANET;
-            }
-            else
-            {
-                NEXT_STATE = START;
-            }
+//                 //if the x y position are where the change planet button is
+//                 NEXT_STATE = CHANGE_PLANET;
+//             }
+//             else
+//             {
+//                 NEXT_STATE = START;
+//             }
             
-        case CHANGE_ANGLE:
-            //if the user presses enter while typing, it will take them out of the state and put them into the start state
-            if(ENTER_PRESSED)
-            {
-                NEXT_STATE = START;
-                ENTER_PRESSED = false;
-            }
-            break;
-            if(LEFT_MOUSE_CLICK)
-            {
-                //if the x y position are where the change speed bar is
-                NEXT_STATE = CHANGE_SPEED;
+//         case CHANGE_ANGLE:
+//             //if the user presses enter while typing, it will take them out of the state and put them into the start state
+//             if(ENTER_PRESSED)
+//             {
+//                 NEXT_STATE = START;
+//                 ENTER_PRESSED = false;
+//             }
+//             break;
+//             if(LEFT_MOUSE_CLICK)
+//             {
+//                 //if the x y position are where the change speed bar is
+//                 NEXT_STATE = CHANGE_SPEED;
 
-                //if the x y position are where the change mass bar is
-                NEXT_STATE = CHANGE_MASS;
+//                 //if the x y position are where the change mass bar is
+//                 NEXT_STATE = CHANGE_MASS;
 
-                //if the x y position are where the change planet button is
-                NEXT_STATE = CHANGE_PLANET;
+//                 //if the x y position are where the change planet button is
+//                 NEXT_STATE = CHANGE_PLANET;
 
-                //if the x y position are where the launch rocket button is
-                NEXT_STATE = ROCKET_READY;
-            }
+//                 //if the x y position are where the launch rocket button is
+//                 NEXT_STATE = ROCKET_READY;
+//             }
 
-        case CHANGE_SPEED:
-            //if the user presses enter while typing, it will take them out of the state and put them into the start state
-            if(ENTER_PRESSED)
-            {
-                NEXT_STATE = START;
-                ENTER_PRESSED = false;
-                break;
-            }
-            if(LEFT_MOUSE_CLICK)
-            {
-                //if the x y position are where the angle speed bar is,  
-                NEXT_STATE = CHANGE_ANGLE;
+//         case CHANGE_SPEED:
+//             //if the user presses enter while typing, it will take them out of the state and put them into the start state
+//             if(ENTER_PRESSED)
+//             {
+//                 NEXT_STATE = START;
+//                 ENTER_PRESSED = false;
+//                 break;
+//             }
+//             if(LEFT_MOUSE_CLICK)
+//             {
+//                 //if the x y position are where the angle speed bar is,  
+//                 NEXT_STATE = CHANGE_ANGLE;
 
-                //if the x y position are where the change mass bar is,  
-                NEXT_STATE = CHANGE_MASS;
+//                 //if the x y position are where the change mass bar is,  
+//                 NEXT_STATE = CHANGE_MASS;
 
-                //if the x y position are where the change planet button is,  
-                NEXT_STATE = CHANGE_PLANET;
+//                 //if the x y position are where the change planet button is,  
+//                 NEXT_STATE = CHANGE_PLANET;
 
-                //if the x y position are where the launch rocket button is,  
-                NEXT_STATE = ROCKET_READY;
+//                 //if the x y position are where the launch rocket button is,  
+//                 NEXT_STATE = ROCKET_READY;
 
-                break;
-            }
+//                 break;
+//             }
 
-        case CHANGE_MASS:
-                //if the user presses enter while typing, it will take them out of the state and put them into the start state
-            if(ENTER_PRESSED)
-            {
-                NEXT_STATE = START;
-                ENTER_PRESSED = false;
-                break;
-            }
-            if(LEFT_MOUSE_CLICK)
-            {
-                //if the x y position are where the angle speed bar is,  
-                NEXT_STATE = CHANGE_ANGLE;
+//         case CHANGE_MASS:
+//                 //if the user presses enter while typing, it will take them out of the state and put them into the start state
+//             if(ENTER_PRESSED)
+//             {
+//                 NEXT_STATE = START;
+//                 ENTER_PRESSED = false;
+//                 break;
+//             }
+//             if(LEFT_MOUSE_CLICK)
+//             {
+//                 //if the x y position are where the angle speed bar is,  
+//                 NEXT_STATE = CHANGE_ANGLE;
 
-                //if the x y position are where the change speed bar is,  
-                NEXT_STATE = CHANGE_SPEED;
+//                 //if the x y position are where the change speed bar is,  
+//                 NEXT_STATE = CHANGE_SPEED;
 
-                //if the x y position are where the change planet button is,  
-                NEXT_STATE = CHANGE_PLANET;
+//                 //if the x y position are where the change planet button is,  
+//                 NEXT_STATE = CHANGE_PLANET;
 
-                //if the x y position are where the launch rocket button is,  
-                NEXT_STATE = ROCKET_READY;
-            }
+//                 //if the x y position are where the launch rocket button is,  
+//                 NEXT_STATE = ROCKET_READY;
+//             }
         
-        case CHANGE_PLANET:
-            if(LEFT_MOUSE_CLICK)
-            {
-                //if the x y position are where the angle speed bar is,  
-                NEXT_STATE = CHANGE_ANGLE;
+//         case CHANGE_PLANET:
+//             if(LEFT_MOUSE_CLICK)
+//             {
+//                 //if the x y position are where the angle speed bar is,  
+//                 NEXT_STATE = CHANGE_ANGLE;
 
-                //if the x y position are where the change speed button is,  
-                NEXT_STATE = CHANGE_SPEED;
+//                 //if the x y position are where the change speed button is,  
+//                 NEXT_STATE = CHANGE_SPEED;
 
-                //if the x y position are where the change mass bar is,  
-                NEXT_STATE = CHANGE_MASS;
+//                 //if the x y position are where the change mass bar is,  
+//                 NEXT_STATE = CHANGE_MASS;
 
-                //if the x y position are where the launch rocket button is,  
-                NEXT_STATE = ROCKET_READY;
+//                 //if the x y position are where the launch rocket button is,  
+//                 NEXT_STATE = ROCKET_READY;
 
-            }
+//             }
 
-        case ROCKET_READY:
-            //when the user clicks the launch button, the checkStringValid function will run on all 3 of the strings to check if 
-            //the user has typed something forbidden
-            if(checkStringValid[CURRENT_TEXT_MASS] && checkStringValid[CURRENT_TEXT_ANGLE] && checkStringValid[CURRENT_TEXT_VELOCITY] && CURRENT_STATE == LAUNCH)
-            {
-                //if the strings are valid, the rocket will launch
-                //if the math works out, the rocket will enter rocket launch, and reach orbit
-                NEXT_STATE = ROCKET_LAUNCH;
-                //if the math does not work out, it will enter rocket crash, and play the according animation
-                NEXT_STATE = ROCKET_CRASH;
-            }
+//         case ROCKET_READY:
+//             //when the user clicks the launch button, the checkStringValid function will run on all 3 of the strings to check if 
+//             //the user has typed something forbidden
+//             if(checkStringValid[CURRENT_TEXT_MASS] && checkStringValid[CURRENT_TEXT_ANGLE] && checkStringValid[CURRENT_TEXT_VELOCITY] && CURRENT_STATE == LAUNCH)
+//             {
+//                 //if the strings are valid, the rocket will launch
+//                 //if the math works out, the rocket will enter rocket launch, and reach orbit
+//                 NEXT_STATE = ROCKET_LAUNCH;
+//                 //if the math does not work out, it will enter rocket crash, and play the according animation
+//                 NEXT_STATE = ROCKET_CRASH;
+//             }
 
-        case ROCKET_LAUNCH:
+//         case ROCKET_LAUNCH:
 
-        case ROCKET_CRASH:
+//         case ROCKET_CRASH:
 
-        case END:
+//         case END:
 
-        default:
-            break;
+//         default:
+//             break;
 
 
-    }
-    return NEXT_STATE;
-}
+//     }
+//     return NEXT_STATE;
+// }
 
 void initializeVGA(VGA *vga)
 {
@@ -536,8 +541,6 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
             char* angle_string; 
             sprintf(angle_string, "Angle: %.3d", angle);
             plotString(1, 26, CURRENT_TEXT_ANGLE);
-            break;
-        case ANIMATION:
             break;
         case END:
             break;
@@ -843,7 +846,7 @@ void initializeMouse()
     // mouse->data = 0xff;
     // while (mouse->data != 0xfa);
     mouse->data = 0xff;
-    while(mouse->data != 0x00);
+    while(mouse->data != 0xaa);
 
     //enable streaming
     mouse->data = 0xf4;
@@ -856,7 +859,11 @@ void initializeMouse()
     // while(mouse->data != 0xfa);
 }
 
-
+void disableMouse()
+{
+    mouse->data = 0xf5;
+    while(mouse->data != 0xfa);
+}
 //function that takes in a char array and determines if there is more than 1 "." char or "-" char in the array
 bool checkStringValid(char *string)
 {
