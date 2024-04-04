@@ -40,9 +40,11 @@ enum State {
     START,
     CHANGE_ANGLE,
     CHANGE_SPEED,
-    CHANGE_PLANET,
     CHANGE_MASS,
-    ANIMATION,
+    CHANGE_PLANET,
+    ROCKET_READY,
+    ROCKET_LAUNCH,
+    ROCKET_CRASH,
     END
 };
 
@@ -61,6 +63,8 @@ bool RIGHT_MOUSE_CLICK;
 int X_SIGN_BIT;
 int Y_SIGN_BIT;
 
+bool ENTER_PRESSED = false;
+
 bool READY_TO_READ;
 
 int BYTE0 = 0;
@@ -78,11 +82,14 @@ int NEW_Y_POSITION = 120;
 
 int CURRENT_TEXT_IDX = 0;
 
-
 struct PS2 *const keyboard = ((struct PS2 *) PS2_DUAL_BASE);
 struct PS2 *const mouse = ((struct PS2 *) PS2_BASE);
 
+char CURRENT_TEXT_MASS[10] = "          "; 
+char CURRENT_TEXT_SPEED[10] = "          "; 
+char CURRENT_TEXT_ANGLE[10] = "          "; 
 
+char* strings[] = {CURRENT_TEXT_MASS, CURRENT_TEXT_SPEED, CURRENT_TEXT_ANGLE};
 
 /*==================BITMAPS==================*/
 
@@ -154,41 +161,32 @@ short int Buffer2[240][512];
 
 int main() 
 {
-
-    int TEXT_LENGTH = 20; // size of the array
-    char *CURRENT_TEXT = (char *)malloc(TEXT_LENGTH * sizeof(char)); // allocate memory
+    enum State CURRENT_STATE = CHANGE_ANGLE;
+    enum State NEXT_STATE;
+    //declare a char array of size 20 that is static and not dynamically alloacted
     //declare an instance of the VGA struct and initialize it
     //to the base address of the VGA
-
-
-
     VGA *vga = (VGA *) VGA_BASE;
     
     //initialize the VGA
     initializeVGA(vga);
     initializeMouse();
 
+
+
     //main loop
     while (1)
     {   
         //POLLING TASKS HERE (MOUSE, KEYBOARD, ETC:)
         getMouseData();
-        getKeyBoardData(CURRENT_TEXT);
-        if(LEFT_MOUSE_CLICK)
-        {
-            // printf("left mouse clicked");
-        }
-        if(RIGHT_MOUSE_CLICK)
-        {
-            // printf("right mouse clicked ");
-        }
-
+  
+        if(CURRENT_STATE < 5 || CURRENT_STATE > 1)
+            getKeyBoardData(strings[CURRENT_STATE]);
+        
         char mouse_pos[25];
         sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
         plotString(0, 0, mouse_pos);
         
-
-    
         //draw everything
         drawCurrentScene(START, MARS, 0, X_POSITION, Y_POSITION);
         //write a 1 to the vga front buffer to swap buffers
@@ -196,9 +194,162 @@ int main()
         //polling loop while waiting for the swap to happen
         while (vga->status & 0x01);
         pixel_buffer_start = vga->back_buffer;
+        
+        //set the current state to the next state
+        //CURRENT_STATE = ControlPath(CURRENT_STATE);
     }
-    free(CURRENT_TEXT);
+    //
     return 0;
+}
+
+//finds the next state of the fsm depending on the current state
+enum State ControlPath(enum State CURRENT_STATE)
+{
+    enum State NEXT_STATE;
+     //CONTROL PATH
+    switch(CURRENT_STATE)
+    {
+        case TITLE:
+            //if the cursor's x and y position are where the start button is, and left click is true
+            NEXT_STATE = START;
+            break;
+            //else 
+            // NEXT_STATE = TITLE;
+        case START:
+            if(LEFT_MOUSE_CLICK)
+            {
+                //if the x y position are where the change angle bar is
+                NEXT_STATE = CHANGE_ANGLE;
+
+                //if the x y position are where the change speed bar is
+                NEXT_STATE = CHANGE_SPEED;
+
+                //if the x y position are where the change mass bar is
+                NEXT_STATE = CHANGE_MASS;
+
+                //if the x y position are where the launch rocket button is
+                NEXT_STATE = ROCKET_READY;
+
+                //if the x y position are where the change planet button is
+                NEXT_STATE = CHANGE_PLANET;
+            }
+            else
+            {
+                NEXT_STATE = START;
+            }
+            
+        case CHANGE_ANGLE:
+            //if the user presses enter while typing, it will take them out of the state and put them into the start state
+            if(ENTER_PRESSED)
+            {
+                NEXT_STATE = START;
+                ENTER_PRESSED = false;
+            }
+            break;
+            if(LEFT_MOUSE_CLICK)
+            {
+                //if the x y position are where the change speed bar is
+                NEXT_STATE = CHANGE_SPEED;
+
+                //if the x y position are where the change mass bar is
+                NEXT_STATE = CHANGE_MASS;
+
+                //if the x y position are where the change planet button is
+                NEXT_STATE = CHANGE_PLANET;
+
+                //if the x y position are where the launch rocket button is
+                NEXT_STATE = ROCKET_READY;
+            }
+
+        case CHANGE_SPEED:
+            //if the user presses enter while typing, it will take them out of the state and put them into the start state
+            if(ENTER_PRESSED)
+            {
+                NEXT_STATE = START;
+                ENTER_PRESSED = false;
+                break;
+            }
+            if(LEFT_MOUSE_CLICK)
+            {
+                //if the x y position are where the angle speed bar is,  
+                NEXT_STATE = CHANGE_ANGLE;
+
+                //if the x y position are where the change mass bar is,  
+                NEXT_STATE = CHANGE_MASS;
+
+                //if the x y position are where the change planet button is,  
+                NEXT_STATE = CHANGE_PLANET;
+
+                //if the x y position are where the launch rocket button is,  
+                NEXT_STATE = ROCKET_READY;
+
+                break;
+            }
+
+        case CHANGE_MASS:
+                //if the user presses enter while typing, it will take them out of the state and put them into the start state
+            if(ENTER_PRESSED)
+            {
+                NEXT_STATE = START;
+                ENTER_PRESSED = false;
+                break;
+            }
+            if(LEFT_MOUSE_CLICK)
+            {
+                //if the x y position are where the angle speed bar is,  
+                NEXT_STATE = CHANGE_ANGLE;
+
+                //if the x y position are where the change speed bar is,  
+                NEXT_STATE = CHANGE_SPEED;
+
+                //if the x y position are where the change planet button is,  
+                NEXT_STATE = CHANGE_PLANET;
+
+                //if the x y position are where the launch rocket button is,  
+                NEXT_STATE = ROCKET_READY;
+            }
+        
+        case CHANGE_PLANET:
+            if(LEFT_MOUSE_CLICK)
+            {
+                //if the x y position are where the angle speed bar is,  
+                NEXT_STATE = CHANGE_ANGLE;
+
+                //if the x y position are where the change speed button is,  
+                NEXT_STATE = CHANGE_SPEED;
+
+                //if the x y position are where the change mass bar is,  
+                NEXT_STATE = CHANGE_MASS;
+
+                //if the x y position are where the launch rocket button is,  
+                NEXT_STATE = ROCKET_READY;
+
+            }
+
+        case ROCKET_READY:
+            //when the user clicks the launch button, the checkStringValid function will run on all 3 of the strings to check if 
+            //the user has typed something forbidden
+            if(checkStringValid[CURRENT_TEXT_MASS] && checkStringValid[CURRENT_TEXT_ANGLE] && checkStringValid[CURRENT_TEXT_VELOCITY] && CURRENT_STATE == LAUNCH)
+            {
+                //if the strings are valid, the rocket will launch
+                //if the math works out, the rocket will enter rocket launch, and reach orbit
+                NEXT_STATE = ROCKET_LAUNCH;
+                //if the math does not work out, it will enter rocket crash, and play the according animation
+                NEXT_STATE = ROCKET_CRASH;
+            }
+
+        case ROCKET_LAUNCH:
+
+        case ROCKET_CRASH:
+
+        case END:
+
+        default:
+            break;
+
+
+    }
+    return NEXT_STATE;
 }
 
 void initializeVGA(VGA *vga)
@@ -384,7 +535,7 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
             plotBox(0, 100, 50, 12, WHITE, (cursor_x < 50 && cursor_y > 100 && cursor_y < 112) ? RED : BLACK);
             char* angle_string; 
             sprintf(angle_string, "Angle: %.3d", angle);
-            plotString(1, 26, angle_string);
+            plotString(1, 26, CURRENT_TEXT_ANGLE);
             break;
         case ANIMATION:
             break;
@@ -425,6 +576,8 @@ void getKeyBoardData(char *CURRENT_TEXT)
         switch (BYTE2) 
         {
             case 0x16: // one pressed
+                if(CURRENT_TEXT_IDX >= 19)
+                    break;
                 if(READY_TO_READ)
                 {
                     READY_TO_READ = false;
@@ -435,6 +588,8 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x1E: // two pressed
+                if(CURRENT_TEXT_IDX >= 19)
+                    break;
                 if(READY_TO_READ)
                 {
                     READY_TO_READ = false;
@@ -445,6 +600,8 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x26: // three pressed
+                if(CURRENT_TEXT_IDX >= 19)
+                    break;
                 if(READY_TO_READ)
                 {
                     READY_TO_READ = false;
@@ -455,6 +612,8 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x25: // four pressed
+                if(CURRENT_TEXT_IDX >= 19)
+                    break;
                 if(READY_TO_READ)
                 {
                     READY_TO_READ = false;
@@ -465,6 +624,8 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x2E: // five pressed
+                if(CURRENT_TEXT_IDX >= 19)
+                    break;
                 if(READY_TO_READ)
                 {
                     READY_TO_READ = false;
@@ -475,6 +636,8 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x36: // six pressed
+                if(CURRENT_TEXT_IDX >= 19)
+                    break;
                 if(READY_TO_READ)
                 {
                     READY_TO_READ = false;
@@ -486,6 +649,8 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x3D: // seven pressed
+                if(CURRENT_TEXT_IDX >= 19)
+                    break;
                 if(READY_TO_READ)
                 {
                     READY_TO_READ = false;
@@ -493,10 +658,10 @@ void getKeyBoardData(char *CURRENT_TEXT)
                     CURRENT_TEXT_IDX++;
                     // printf("%s\n", CURRENT_TEXT);
                 }
-                
-                
                 break;
             case 0x3E: // eight pressed
+                if(CURRENT_TEXT_IDX >= 19)
+                    break;
                 if(READY_TO_READ)
                 {
                     READY_TO_READ = false;
@@ -508,6 +673,8 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x46: // nine pressed
+                if(CURRENT_TEXT_IDX >= 19)
+                    break;
                 if(READY_TO_READ)
                 {
                     READY_TO_READ = false;
@@ -515,10 +682,23 @@ void getKeyBoardData(char *CURRENT_TEXT)
                     CURRENT_TEXT_IDX++;
                     // printf("%s\n", CURRENT_TEXT);
                 }
+            
+            case 0x45: //zero pressed
+                if(CURRENT_TEXT_IDX >= 19)
+                    break;
+                if(READY_TO_READ)
+                {
+                    READY_TO_READ = false;
+                    CURRENT_TEXT[CURRENT_TEXT_IDX] = '0';
+                    CURRENT_TEXT_IDX++;
+                    // printf("%s\n", CURRENT_TEXT);
+                }
                 
                 
                 break;
             case 0x49: // period ' . ' pressed
+                if(CURRENT_TEXT_IDX >= 19)
+                    break;
                 if(READY_TO_READ)
                 {
                     READY_TO_READ = false;
@@ -530,6 +710,8 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x4E: // minues sign ' - ' pressed
+                if(CURRENT_TEXT_IDX >= 19)
+                    break;
                 if(READY_TO_READ)
                 {
                     READY_TO_READ = false;
@@ -547,11 +729,18 @@ void getKeyBoardData(char *CURRENT_TEXT)
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = ' ';
                     // printf("%s\n", CURRENT_TEXT);
                 }
-                
+                break;
+
+            //enter pressed
+            case 0x5A:
+                if(READY_TO_READ)
+                {
+                    READY_TO_READ = false;
+                    ENTER_PRESSED = true;
+                }
                 break;
             default:
                 break;
-            
         }
     }
     else
@@ -564,88 +753,6 @@ void getKeyBoardData(char *CURRENT_TEXT)
 
 
 
-//get the last 3 bits always, 
-// void getMouseData()
-// {
-//     int read_valid = mouse->RVALID & 0b10000000;
-//     char* poo;
-//     // sprintf(poo, "%i", (int) mouse->RVALID);
-//     // clearCharacters(' ');
-//     // plotString(0, 0, poo);
-//     printf("current byte: %d\n", current_byte);   
-//     if(read_valid)
-//     {
-//         // printf("Dog\n");
-//         int PS2_data = mouse->data;
-//         if(current_byte == 0)
-//         {
-//             LEFT_MOUSE_CLICK = (PS2_data & 0b1);
-//             RIGHT_MOUSE_CLICK = (PS2_data & 0b10);
-//             X_SIGN_BIT = (PS2_data & 0b10000);
-//             Y_SIGN_BIT = (PS2_data & 0b100000);
-//         }
-//         else if(current_byte == 1)
-//         {
-//             //if the sign is negative
-//             if(X_SIGN_BIT)
-//             {
-//                 if(X_POSITION < ((PS2_data ^ 0b11111111) + 1))
-//                 {
-//                     NEW_X_POSITION = 0;
-//                 }
-//                 else{
-//                     NEW_X_POSITION = X_POSITION - ((PS2_data ^ 0b11111111) + 1);
-//                 }
-//             }
-//             else
-//             {
-//                 if(X_POSITION + PS2_data > 320)
-//                 {
-//                     NEW_X_POSITION = 320;
-//                 }
-//                 else
-//                 {
-//                     NEW_X_POSITION = X_POSITION+ PS2_data;
-//                 }
-//             }
-//            X_POSITION = NEW_X_POSITION;
-//         }
-//         else if(current_byte == 2)
-//         {
-//             if(Y_SIGN_BIT)
-//             {
-//                 if(Y_POSITION < ((PS2_data ^ 0b11111111) + 1))
-//                 {
-//                     NEW_Y_POSITION = 0;
-//                 }
-//                 else{
-//                     NEW_Y_POSITION = Y_POSITION - ((PS2_data ^ 0b11111111) + 1);
-//                 }
-//             }
-//             else
-//             {
-//                 if(Y_POSITION + PS2_data > 240)
-//                 {
-//                     NEW_Y_POSITION = 240;
-//                 }
-//                 else
-//                 {
-//                     NEW_Y_POSITION = Y_POSITION + PS2_data;
-//                 }
-//             }
-//             Y_POSITION = NEW_Y_POSITION;
-//         }
-        
-//         current_byte++;
-//         if(current_byte == 3)
-//         {
-//             current_byte = 0;
-//         }
-//     }
-   
-// }
-
-
 void getMouseData()
 {
     int read_valid = mouse->RVALID & 0b10000000;
@@ -654,7 +761,6 @@ void getMouseData()
     // clearCharacters(' ');
     // plotString(0, 0, poo);
     int PS2_data;
-
     // printf("current byte: %d\n", current_byte);   
     if(read_valid)
     {
@@ -699,7 +805,6 @@ void getMouseData()
         }
         X_POSITION = NEW_X_POSITION;
         
-   
         PS2_data = mouse->data;
         if(Y_SIGN_BIT)
         {
@@ -729,9 +834,6 @@ void getMouseData()
             }
         }
         Y_POSITION = NEW_Y_POSITION;
-        
-        
-
     }
    
 }
@@ -748,8 +850,47 @@ void initializeMouse()
     while(mouse->data != 0xfa);
 
     //set sample to 40
-    mouse->data = 0xf3;
-    while(mouse->data != 0xfa);
-    mouse->data = 200;
-    while(mouse->data != 0xfa);
+    // mouse->data = 0xf3;
+    // while(mouse->data != 0xfa);
+    // mouse->data = 200;
+    // while(mouse->data != 0xfa);
 }
+
+
+//function that takes in a char array and determines if there is more than 1 "." char or "-" char in the array
+bool checkStringValid(char *string)
+{
+    int minus_count = 0;
+    int period_count = 0;
+    int index = 0;
+    while(1)
+    {
+        if(string[index] == ' ')
+        {
+            if(string[index - 1] == '.')
+            {
+                return false;
+            }
+            break;
+        }
+        if(string[index] == '.')
+        {
+            period_count++;
+        }
+        if(string[index] == '-')
+        {
+            minus_count++;
+        }
+        index++;
+    }
+    if(minus_count > 1 || period_count > 1)
+    {
+        return false;
+    }
+    if(minus_count == 1 && string[0] != '-')
+    {
+        return false;
+    }
+    return true;
+}
+
