@@ -36,7 +36,12 @@ enum Planet {
 };
 
 enum State {
+    TITLE,
     START,
+    CHANGE_ANGLE,
+    CHANGE_SPEED,
+    CHANGE_PLANET,
+    CHANGE_MASS,
     ANIMATION,
     END
 };
@@ -372,7 +377,6 @@ void clearCharacters(char c)
 void drawCurrentScene(enum State state, enum Planet planet, double angle, int cursor_x, int cursor_y)
 {
     plotBackground(state, planet);  
-    drawCursor(cursor_x, cursor_y);
     switch (state)
     {
         case START:
@@ -389,6 +393,7 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
         default:
             break;
     }
+    drawCursor(cursor_x, cursor_y);
 }
 
 void drawCursor(int x, int y)
