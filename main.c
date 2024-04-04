@@ -37,7 +37,7 @@ enum Planet {
 
 enum State {
     TITLE,
-    START,
+    IDLE,
     CHANGE_ANGLE,
     CHANGE_SPEED,
     CHANGE_MASS,
@@ -88,6 +88,8 @@ struct PS2 *const mouse = ((struct PS2 *) PS2_BASE);
 char CURRENT_TEXT_MASS[10] = "          "; 
 char CURRENT_TEXT_SPEED[10] = "          "; 
 char CURRENT_TEXT_ANGLE[10] = "          "; 
+
+double CURRENT_DOUBLE_ANGLE;
 
 char* strings[] = {CURRENT_TEXT_MASS, CURRENT_TEXT_SPEED, CURRENT_TEXT_ANGLE};
 
@@ -146,20 +148,27 @@ void clearCharacters(char c);
 void drawCurrentScene(enum State state, enum Planet planet, double angle, int cursor_x, int cursor_y);
 //draws the cursor
 void drawCursor(int x, int y);
-//gets the mouse data
+//gets the mouse data   
 void getMouseData();
 //gets the keyboard data
 void getKeyBoardData(char *CURRENT_TEXT);
 //init mouse
 void initializeMouse();
+//mouse erasign
+void eraseCursor();
+short readPixel(int x, int y);
 
 void disableMouse();
+void changeState(enum State next_state, enum Planet planet, VGA *vga);  
+
 
 /*==================GLOBALS==================*/
 //using 320 x 240 vga resolution
 volatile int pixel_buffer_start; 
 short int Buffer1[240][512];
 short int Buffer2[240][512];
+short int CurrentSceneDefault[512][240];
+int previousFrame[2][2];
 
 int main() 
 {
@@ -174,26 +183,33 @@ int main()
     initializeVGA(vga);
     initializeMouse();
 
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 2; j++)
+            previousFrame[i][j] = 0;    
 
+
+    //SET INITIAL STATE
+    changeState(IDLE, MARS, vga);
 
     //main loop
     while (1)
     {   
         //POLLING TASKS HERE (MOUSE, KEYBOARD, ETC:)
-        mouse->data = 0xf4;
-        while(mouse->data != 0xfa);
+
         getMouseData();
-        disableMouse();
   
         if(CURRENT_STATE < 5 || CURRENT_STATE > 1)
             getKeyBoardData(strings[CURRENT_STATE]);
         
         char mouse_pos[25];
         sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
+        printf("Y position of mouse: %d", Y_POSITION);
         plotString(0, 0, mouse_pos);
+
+        eraseCursor();
+        drawCurrentScene(IDLE, MARS, 0, X_POSITION, Y_POSITION);
+        drawCursor(X_POSITION, Y_POSITION);
         
-        //draw everything
-        drawCurrentScene(START, MARS, 0, X_POSITION, Y_POSITION);
         //write a 1 to the vga front buffer to swap buffers
         vga->front_buffer = 1;
         //polling loop while waiting for the swap to happen
@@ -216,11 +232,11 @@ int main()
 //     {
 //         case TITLE:
 //             //if the cursor's x and y position are where the start button is, and left click is true
-//             NEXT_STATE = START;
+//             NEXT_STATE = IDLE;
 //             break;
 //             //else 
 //             // NEXT_STATE = TITLE;
-//         case START:
+//         case IDLE:
 //             if(LEFT_MOUSE_CLICK)
 //             {
 //                 //if the x y position are where the change angle bar is
@@ -240,14 +256,14 @@ int main()
 //             }
 //             else
 //             {
-//                 NEXT_STATE = START;
+//                 NEXT_STATE = IDLE;
 //             }
             
 //         case CHANGE_ANGLE:
 //             //if the user presses enter while typing, it will take them out of the state and put them into the start state
 //             if(ENTER_PRESSED)
 //             {
-//                 NEXT_STATE = START;
+//                 NEXT_STATE = IDLE;
 //                 ENTER_PRESSED = false;
 //             }
 //             break;
@@ -270,7 +286,7 @@ int main()
 //             //if the user presses enter while typing, it will take them out of the state and put them into the start state
 //             if(ENTER_PRESSED)
 //             {
-//                 NEXT_STATE = START;
+//                 NEXT_STATE = IDLE;
 //                 ENTER_PRESSED = false;
 //                 break;
 //             }
@@ -295,7 +311,7 @@ int main()
 //                 //if the user presses enter while typing, it will take them out of the state and put them into the start state
 //             if(ENTER_PRESSED)
 //             {
-//                 NEXT_STATE = START;
+//                 NEXT_STATE = IDLE;
 //                 ENTER_PRESSED = false;
 //                 break;
 //             }
@@ -357,6 +373,34 @@ int main()
 //     return NEXT_STATE;
 // }
 
+void changeState(enum State next_state, enum Planet planet, VGA *vga)
+{
+    //TODO: CHANGE 0 TO CURRENT_DOUBLE_ANGLE
+    plotBackground(next_state, planet);
+
+    wait_for_v_sync(vga);
+    pixel_buffer_start = vga->back_buffer;
+
+    plotBackground(next_state, planet);
+
+    wait_for_v_sync(vga);
+
+
+    //read the curret scene 
+    for (int x = 0; x < 320; x++)
+        for (int y = 0; y < 240; y++)
+            CurrentSceneDefault[x][y] = readPixel(x, y);
+}
+
+void eraseCursor()
+{
+    //clear cursor from two frames ago:
+    for (int i = 0; i < 16; i++)
+        for (int j = 0; j < 16; j++)
+            plotPixel(previousFrame[1][0] + i, previousFrame[1][1] + j, CurrentSceneDefault[previousFrame[1][0] + i][previousFrame[1][1] + j]);
+          
+}
+
 void initializeVGA(VGA *vga)
 {
     //set the resolution to 320 x 240
@@ -390,6 +434,12 @@ void plotPixel(int x, int y, short int color)
     if (x > 320 || x < 0 || y > 240 || y < 0) return;
     volatile short int *pixel_address = (short int *) (pixel_buffer_start + (y << 10) + (x << 1));
     *pixel_address = color;
+}
+
+short readPixel(int x, int y)
+{
+    volatile short int *pixel_address = (short int *) (pixel_buffer_start + (y << 10) + (x << 1));
+    return *pixel_address;
 }
 
 void plotBox(int x, int y, int width, int height, short int outline_color, short int fill_color)
@@ -437,7 +487,6 @@ void plotLetter(int x, int y, char letter)
 
     *character_address = letter;
 }
-
 
 void plotString(const int init_x, const int init_y, char *string)
 {
@@ -532,10 +581,9 @@ void clearCharacters(char c)
 
 void drawCurrentScene(enum State state, enum Planet planet, double angle, int cursor_x, int cursor_y)
 {
-    plotBackground(state, planet);  
     switch (state)
     {
-        case START:
+        case IDLE:
             plotRocket(128, 150, angle, false);
             plotBox(0, 100, 50, 12, WHITE, (cursor_x < 50 && cursor_y > 100 && cursor_y < 112) ? RED : BLACK);
             char* angle_string; 
@@ -547,7 +595,6 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
         default:
             break;
     }
-    drawCursor(cursor_x, cursor_y);
 }
 
 void drawCursor(int x, int y)
@@ -558,9 +605,15 @@ void drawCursor(int x, int y)
             if (cursor[i * 16 + j] == BLACK) continue;
             plotPixel(x + i, y + j, cursor[i * 16 + j]);
         }
+
+    //move prev frame into second last frame
+    previousFrame[1][0] = previousFrame[0][0];
+    previousFrame[1][1] = previousFrame[0][1];
+
+    //move x and y into previous frame
+    previousFrame[0][0] = x; 
+    previousFrame[0][1] = y; 
 }
-
-
 
 void getKeyBoardData(char *CURRENT_TEXT)
 {
@@ -754,8 +807,6 @@ void getKeyBoardData(char *CURRENT_TEXT)
     *RLEDs = BYTE2;
 }
 
-
-
 void getMouseData()
 {
     int read_valid = mouse->RVALID & 0b10000000;
@@ -819,7 +870,7 @@ void getMouseData()
                 NEW_Y_POSITION = 0;
             }
             else{
-                NEW_Y_POSITION = Y_POSITION - ((PS2_data ^ 0b11111111) + 1);
+                NEW_Y_POSITION = Y_POSITION + ((PS2_data ^ 0b11111111) + 1);
             }
         }
         else
@@ -833,7 +884,7 @@ void getMouseData()
             }
             else
             {
-                NEW_Y_POSITION = Y_POSITION + PS2_data;
+                NEW_Y_POSITION = Y_POSITION - PS2_data;
             }
         }
         Y_POSITION = NEW_Y_POSITION;
@@ -900,4 +951,3 @@ bool checkStringValid(char *string)
     }
     return true;
 }
-
