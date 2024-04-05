@@ -173,7 +173,8 @@ int previousFrame[2][2];
 
 int main() 
 {
-    enum State CURRENT_STATE = CHANGE_ANGLE;
+    enum Planet CURRENT_PLANET = MARS;
+    enum State CURRENT_STATE = IDLE;
     enum State NEXT_STATE;
     //declare a char array of size 20 that is static and not dynamically alloacted
     //declare an instance of the VGA struct and initialize it
@@ -203,7 +204,45 @@ int main()
         
         char mouse_pos[25];
         sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
-       
+        char current_state[25];
+        switch (CURRENT_STATE)
+        {
+            case TITLE:
+                sprintf(current_state, "State: TITLE");
+                break;
+            case IDLE:
+                sprintf(current_state, "State: IDLE");
+                break;
+            case CHANGE_ANGLE:
+                sprintf(current_state, "State: CHANGE_ANGLE");
+                break;
+            case CHANGE_SPEED:
+                sprintf(current_state, "State: CHANGE_SPEED");
+                break;
+            case CHANGE_MASS:
+                sprintf(current_state, "State: CHANGE_MASS");
+                break;  
+            case ROCKET_READY:
+                sprintf(current_state, "State: ROCKET_READY");
+                break;
+            case CHANGE_PLANET:
+                sprintf(current_state, "State: CHANGE_PLANET");
+                break;
+            case ROCKET_LAUNCH:
+                sprintf(current_state, "State: ROCKET_LAUNCH");
+                break;
+            case ROCKET_CRASH:
+                sprintf(current_state, "State: ROCKET_CRASH");
+                break;
+            case END:
+                sprintf(current_state, "State: END");
+                break;
+            default:
+                sprintf(current_state, "State: ERROR");
+                break;
+        }
+
+        plotString(0, 1, current_state);       
         plotString(0, 0, mouse_pos);
 
         eraseCursor();
@@ -552,6 +591,8 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
 {
     switch (state)
     {
+        case TITLE:
+            break;
         case IDLE:
             plotRocket(128, 150, angle, false);
             plotBox(0, 75, 70, 148, WHITE, GRAY);
@@ -564,11 +605,19 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
 
             plotString(2, 30, "Rocket Mass:");
             plotBox(8, 126, 50, 12, WHITE, (cursor_x > 8 && cursor_x < 58 && cursor_y > 126 && cursor_y < 138) ? RED : BLACK);
-            
+            break;
+        case CHANGE_ANGLE:
+            plotRocket(128, 150, angle, false);
+            plotBox(0, 75, 70, 148, WHITE, GRAY);
 
-            char* angle_string; 
-            sprintf(angle_string, "Angle: %.3d", angle);
-            plotString(1, 26, CURRENT_TEXT_ANGLE);
+            plotString(2, 20, "Angle:");
+            plotBox(8, 86, 50, 12, WHITE, RED);
+
+            plotString(2, 25, "Initial Speed:");
+            plotBox(8, 106, 50, 12, WHITE, BLACK);
+
+            plotString(2, 30, "Rocket Mass:");
+            plotBox(8, 126, 50, 12, WHITE, BLACK);
             break;
         case END:
             break;
