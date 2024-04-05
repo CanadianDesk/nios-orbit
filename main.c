@@ -82,8 +82,8 @@ int NEW_Y_POSITION = 120;
 
 int CURRENT_TEXT_IDX = 0;
 
-struct PS2 *const keyboard = ((struct PS2 *) PS2_DUAL_BASE);
-struct PS2 *const mouse = ((struct PS2 *) PS2_BASE);
+struct PS2 *const keyboard = ((struct PS2 *) PS2_BASE);
+struct PS2 *const mouse = ((struct PS2 *) PS2_DUAL_BASE);
 
 char CURRENT_TEXT_MASS[10] = "          "; 
 char CURRENT_TEXT_SPEED[10] = "          "; 
@@ -149,16 +149,15 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
 //draws the cursor
 void drawCursor(int x, int y);
 //gets the mouse data   
-void getMouseData();
+
 //gets the keyboard data
 void getKeyBoardData(char *CURRENT_TEXT);
 //init mouse
-void initializeMouse();
+
 //mouse erasign
 void eraseCursor();
 short readPixel(int x, int y);
 
-void disableMouse();
 void changeState(enum State next_state, enum Planet planet, VGA *vga);  
 
 
@@ -181,7 +180,6 @@ int main()
     
     //initialize the VGA
     initializeVGA(vga);
-    initializeMouse();
 
     for (int i = 0; i < 2; i++)
         for (int j = 0; j < 2; j++)
@@ -198,12 +196,12 @@ int main()
 
         //getMouseData();
   
-        if(CURRENT_STATE < 5 || CURRENT_STATE > 1)
-            getKeyBoardData(strings[CURRENT_STATE]);
+        // if(CURRENT_STATE < 5 || CURRENT_STATE > 1)
+        getKeyBoardData(strings[CURRENT_STATE]);
         
         char mouse_pos[25];
         sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
-        printf("Y position of mouse: %d", Y_POSITION);
+       
         plotString(0, 0, mouse_pos);
 
         eraseCursor();
@@ -787,45 +785,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 }
                 break;
 
-            //up arrow key pressed
-            case 0x75:
-                if(READY_TO_READ)
-                {
-                    READY_TO_READ = false;
-                    Y_POSITION -= 1;
-                    
-                }
-                break;
 
-            //down arrow key pressed
-            case 0x72:
-                if(READY_TO_READ)
-                {
-                    READY_TO_READ = false;
-                    Y_POSITION += 1;
-                    
-                }
-                break;
-
-            //left arrow key pressed
-            case 0x6B:
-                if(READY_TO_READ)
-                {
-                    READY_TO_READ = false;
-                    X_POSITION -= 1;
-                    
-                }
-                break;
-
-            //right arrow key pressed
-            case 0x74:
-                if(READY_TO_READ)
-                {
-                    READY_TO_READ = false;
-                    X_POSITION += 1;
-                    
-                }
-                break;
             //enter pressed
             case 0x5A:
                 if(READY_TO_READ)
@@ -834,128 +794,80 @@ void getKeyBoardData(char *CURRENT_TEXT)
                     ENTER_PRESSED = true;
                 }
                 break;
+
+            // //w key pressed
+            // case 0x1D:
+            //     if(READY_TO_READ)
+            //     {
+            //         READY_TO_READ = false;
+            //         Y_POSITION -= 2;
+            //     }
+            //     break;
+            // //s key pressed
+            // case 0x1B: 
+            //     if(READY_TO_READ)
+            //     {
+            //         READY_TO_READ = false;
+            //         Y_POSITION += 2;
+            //     }
+            //     break;
+
+            // //a key pressed
+            // case 0x1C:
+            //     if(READY_TO_READ)
+            //     {
+            //         READY_TO_READ = false;
+            //         X_POSITION -= 2;
+            //     }
+            //     break;
+
+            // //d key pressed
+            // case 0x23:
+            //     if(READY_TO_READ)
+            //     {
+            //         READY_TO_READ = false;
+            //         X_POSITION += 2;  
+            //     }  
+                
+                break;
             default:
                 break;
+
+          
         }
     }
     else
     {
+        switch(BYTE2)
+        {
+            //w key pressed
+            case 0x1D:
+                Y_POSITION -= 2;
+                break;
+            //s key pressed
+            case 0x1B: 
+                Y_POSITION += 2;
+                break;
+
+            //a key pressed
+            case 0x1C:
+                X_POSITION -= 2;
+                break;
+
+            //d key pressed
+            case 0x23:
+                X_POSITION += 2;    
+                
+                break;
+            
+        }
         READY_TO_READ = true;
+  
     }
     
     *RLEDs = BYTE2;
 }
 
-// void getMouseData()
-// {
-//     mouse->data = (0xEB);
-//     int read_valid = mouse->RVALID & 0b10000000;
-//     int read_available = mouse->RAVAIL;
-
-//     char* poo;
-//     // sprintf(poo, "%i", (int) mouse->RVALID);
-//     // clearCharacters(' ');
-//     // plotString(0, 0, poo);
-//     int PS2_data;
-//     // printf("current byte: %d\n", current_byte);   
-//     if(read_valid && read_available > 0)
-//     {
-//         // printf("Dog\n");
-//         PS2_data = mouse->data;
- 
-//         LEFT_MOUSE_CLICK = (PS2_data & 0b1);
-//         RIGHT_MOUSE_CLICK = (PS2_data & 0b10);
-//         X_SIGN_BIT = (PS2_data & 0b10000);
-//         Y_SIGN_BIT = (PS2_data & 0b100000);
-        
-//         PS2_data = mouse->data;
-
-//         //if the sign is negative
-//         if(X_SIGN_BIT)
-//         {   
-//             char dumbo[20];
-//             sprintf(dumbo, "dx: -%d", (PS2_data ^ 0b11111111));
-//             plotString(0, 1, dumbo);
-//             if(X_POSITION < ((PS2_data ^ 0b11111111) + 1))
-//             {
-//                 NEW_X_POSITION = 0;
-//             }
-//             else
-//             {
-//                 NEW_X_POSITION = X_POSITION - ((PS2_data ^ 0b11111111) + 1);
-//             }
-//         }
-//         else
-//         {
-//             char dumbo[20];
-//             sprintf(dumbo, "dx: %d", (PS2_data ^ 0b11111111));
-//             plotString(0, 1, dumbo);          
-//             if(X_POSITION + PS2_data > 320)
-//             {
-//                 NEW_X_POSITION = 320;
-//             }
-//             else
-//             {
-//                 NEW_X_POSITION = X_POSITION+ PS2_data;
-//             }
-//         }
-//         X_POSITION = NEW_X_POSITION;
-        
-//         PS2_data = mouse->data;
-//         if(Y_SIGN_BIT)
-//         {
-//             char dumbo[20];
-//             sprintf(dumbo, "dy: -%d", (PS2_data ^ 0b11111111));
-//             plotString(0, 2, dumbo);            
-//             if(Y_POSITION < ((PS2_data ^ 0b11111111) + 1))
-//             {
-//                 NEW_Y_POSITION = 0;
-//             }
-//             else{
-//                 NEW_Y_POSITION = Y_POSITION + ((PS2_data ^ 0b11111111) + 1);
-//             }
-//         }
-//         else
-//         {
-//             char dumbo[20];
-//             sprintf(dumbo, "dy: %d", (PS2_data ^ 0b11111111));
-//             plotString(0, 2, dumbo);              
-//             if(Y_POSITION + PS2_data > 240)
-//             {
-//                 NEW_Y_POSITION = 240;
-//             }
-//             else
-//             {
-//                 NEW_Y_POSITION = Y_POSITION - PS2_data;
-//             }
-//         }
-//         Y_POSITION = NEW_Y_POSITION;
-//     }
-   
-// }
-
-// void initializeMouse()
-// {
-//     // mouse->data = 0xff;
-//     // while (mouse->data != 0xfa);
-//     mouse->data = 0xff;
-//     while(mouse->data != 0xaa);
-
-//     //enable streaming
-//     // mouse->data = 0xf4;
-//     // while(mouse->data != 0xfa);
-
-
-//     //enable remote mode
-//     mouse->data = 0xf0;
-//     while(mouse->data != 0xfa);
-
-//     //set sample to 40
-//     // mouse->data = 0xf3;
-//     // while(mouse->data != 0xfa);
-//     // mouse->data = 200;
-//     // while(mouse->data != 0xfa);
-// }
 
 
 //function that takes in a char array and determines if there is more than 1 "." char or "-" char in the array
