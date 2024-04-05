@@ -160,6 +160,7 @@ void eraseCursor();
 short readPixel(int x, int y);
 
 void changeState(enum State next_state, enum Planet planet, VGA *vga);  
+enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enum Planet planet, VGA *vga);
 
 
 /*==================GLOBALS==================*/
@@ -216,164 +217,133 @@ int main()
         pixel_buffer_start = vga->back_buffer;
         
         //set the current state to the next state
-        //CURRENT_STATE = ControlPath(CURRENT_STATE);
+        CURRENT_STATE = ControlPath(CURRENT_STATE, X_POSITION, Y_POSITION, MARS, vga);
     }
     //
     return 0;
 }
 
-//finds the next state of the fsm depending on the current state
-// enum State ControlPath(enum State CURRENT_STATE)
-// {
-//     enum State NEXT_STATE;
-//      //CONTROL PATH
-//     switch(CURRENT_STATE)
-//     {
-//         case TITLE:
-//             //if the cursor's x and y position are where the start button is, and left click is true
-//             NEXT_STATE = IDLE;
-//             break;
-//             //else 
-//             // NEXT_STATE = TITLE;
-//         case IDLE:
-//             if(LEFT_MOUSE_CLICK)
-//             {
-//                 //if the x y position are where the change angle bar is
-//                 NEXT_STATE = CHANGE_ANGLE;
+// finds the next state of the fsm depending on the current state
+enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enum Planet planet, VGA *vga)
+{
+    enum State NEXT_STATE;
+     //CONTROL PATH
+    switch(CURRENT_STATE)
+    {
+        case TITLE:
+            NEXT_STATE = ENTER_PRESSED ? IDLE : TITLE;
+            break;
+        case IDLE:
+            if(ENTER_PRESSED)
+            {
+                if (cursor_x > 8 && cursor_x < 58 && cursor_y > 86 && cursor_y < 98)
+                {
+                    NEXT_STATE = CHANGE_ANGLE;
+                    changeState(CHANGE_ANGLE, planet, vga);
+                }
 
-//                 //if the x y position are where the change speed bar is
-//                 NEXT_STATE = CHANGE_SPEED;
+                //if the x y position are where the change speed bar is
+                if(cursor_x > 8 && cursor_x < 58 && cursor_y > 106 && cursor_y < 118)
+                {
+                    NEXT_STATE = CHANGE_SPEED;
+                    changeState(CHANGE_SPEED, planet, vga);
+                }
 
-//                 //if the x y position are where the change mass bar is
-//                 NEXT_STATE = CHANGE_MASS;
+                //if the x y position are where the change mass bar is
+                if (cursor_x > 8 && cursor_x < 58 && cursor_y > 126 && cursor_y < 138)
+                {
+                    NEXT_STATE = CHANGE_MASS;
+                    changeState(CHANGE_MASS, planet, vga);
+                }
 
-//                 //if the x y position are where the launch rocket button is
-//                 NEXT_STATE = ROCKET_READY;
+                //if the x y position are where the launch rocket button is
+                // NEXT_STATE = ROCKET_READY;
 
-//                 //if the x y position are where the change planet button is
-//                 NEXT_STATE = CHANGE_PLANET;
-//             }
-//             else
-//             {
-//                 NEXT_STATE = IDLE;
-//             }
+                //if the x y position are where the change planet button is
+                // NEXT_STATE = CHANGE_PLANET;
+            }
+            else
+            {
+                NEXT_STATE = IDLE;
+            }
+            break;
             
-//         case CHANGE_ANGLE:
-//             //if the user presses enter while typing, it will take them out of the state and put them into the start state
-//             if(ENTER_PRESSED)
-//             {
-//                 NEXT_STATE = IDLE;
-//                 ENTER_PRESSED = false;
-//             }
-//             break;
-//             if(LEFT_MOUSE_CLICK)
-//             {
-//                 //if the x y position are where the change speed bar is
-//                 NEXT_STATE = CHANGE_SPEED;
+        case CHANGE_ANGLE:
+            //if the user presses enter while typing, it will take them out of the state and put them into the start state
+            if(ENTER_PRESSED)
+            {
+                NEXT_STATE = IDLE;
+                changeState(IDLE, planet, vga);
+            }
+            else   
+                NEXT_STATE = CHANGE_ANGLE;
+            break;
 
-//                 //if the x y position are where the change mass bar is
-//                 NEXT_STATE = CHANGE_MASS;
+        case CHANGE_SPEED:
+            //if the user presses enter while typing, it will take them out of the state and put them into the start state
+            if(ENTER_PRESSED){
+                NEXT_STATE = IDLE;
+                changeState(IDLE, planet, vga);
+            }
+            else
+                NEXT_STATE = CHANGE_SPEED;
+            break;
 
-//                 //if the x y position are where the change planet button is
-//                 NEXT_STATE = CHANGE_PLANET;
-
-//                 //if the x y position are where the launch rocket button is
-//                 NEXT_STATE = ROCKET_READY;
-//             }
-
-//         case CHANGE_SPEED:
-//             //if the user presses enter while typing, it will take them out of the state and put them into the start state
-//             if(ENTER_PRESSED)
-//             {
-//                 NEXT_STATE = IDLE;
-//                 ENTER_PRESSED = false;
-//                 break;
-//             }
-//             if(LEFT_MOUSE_CLICK)
-//             {
-//                 //if the x y position are where the angle speed bar is,  
-//                 NEXT_STATE = CHANGE_ANGLE;
-
-//                 //if the x y position are where the change mass bar is,  
-//                 NEXT_STATE = CHANGE_MASS;
-
-//                 //if the x y position are where the change planet button is,  
-//                 NEXT_STATE = CHANGE_PLANET;
-
-//                 //if the x y position are where the launch rocket button is,  
-//                 NEXT_STATE = ROCKET_READY;
-
-//                 break;
-//             }
-
-//         case CHANGE_MASS:
-//                 //if the user presses enter while typing, it will take them out of the state and put them into the start state
-//             if(ENTER_PRESSED)
-//             {
-//                 NEXT_STATE = IDLE;
-//                 ENTER_PRESSED = false;
-//                 break;
-//             }
-//             if(LEFT_MOUSE_CLICK)
-//             {
-//                 //if the x y position are where the angle speed bar is,  
-//                 NEXT_STATE = CHANGE_ANGLE;
-
-//                 //if the x y position are where the change speed bar is,  
-//                 NEXT_STATE = CHANGE_SPEED;
-
-//                 //if the x y position are where the change planet button is,  
-//                 NEXT_STATE = CHANGE_PLANET;
-
-//                 //if the x y position are where the launch rocket button is,  
-//                 NEXT_STATE = ROCKET_READY;
-//             }
+        case CHANGE_MASS:
+                //if the user presses enter while typing, it will take them out of the state and put them into the start state
+            if(ENTER_PRESSED)
+            {
+                NEXT_STATE = IDLE;
+                changeState(IDLE, planet, vga);
+            }
+            else
+                NEXT_STATE = CHANGE_MASS;
+            break;
         
-//         case CHANGE_PLANET:
-//             if(LEFT_MOUSE_CLICK)
-//             {
-//                 //if the x y position are where the angle speed bar is,  
-//                 NEXT_STATE = CHANGE_ANGLE;
+        // case CHANGE_PLANET:
+        //     if(LEFT_MOUSE_CLICK)
+        //     {
+        //         //if the x y position are where the angle speed bar is,  
+        //         NEXT_STATE = CHANGE_ANGLE;
 
-//                 //if the x y position are where the change speed button is,  
-//                 NEXT_STATE = CHANGE_SPEED;
+        //         //if the x y position are where the change speed button is,  
+        //         NEXT_STATE = CHANGE_SPEED;
 
-//                 //if the x y position are where the change mass bar is,  
-//                 NEXT_STATE = CHANGE_MASS;
+        //         //if the x y position are where the change mass bar is,  
+        //         NEXT_STATE = CHANGE_MASS;
 
-//                 //if the x y position are where the launch rocket button is,  
-//                 NEXT_STATE = ROCKET_READY;
+        //         //if the x y position are where the launch rocket button is,  
+        //         NEXT_STATE = ROCKET_READY;
 
-//             }
+        //     }
 
-//         case ROCKET_READY:
-//             //when the user clicks the launch button, the checkStringValid function will run on all 3 of the strings to check if 
-//             //the user has typed something forbidden
-//             if(checkStringValid[CURRENT_TEXT_MASS] && checkStringValid[CURRENT_TEXT_ANGLE] && checkStringValid[CURRENT_TEXT_VELOCITY] && CURRENT_STATE == LAUNCH)
-//             {
-//                 //if the strings are valid, the rocket will launch
-//                 //if the math works out, the rocket will enter rocket launch, and reach orbit
-//                 NEXT_STATE = ROCKET_LAUNCH;
-//                 //if the math does not work out, it will enter rocket crash, and play the according animation
-//                 NEXT_STATE = ROCKET_CRASH;
-//             }
+        // case ROCKET_READY:
+        //     //when the user clicks the launch button, the checkStringValid function will run on all 3 of the strings to check if 
+        //     //the user has typed something forbidden
+        //     if(checkStringValid[CURRENT_TEXT_MASS] && checkStringValid[CURRENT_TEXT_ANGLE] && checkStringValid[CURRENT_TEXT_VELOCITY] && CURRENT_STATE == LAUNCH)
+        //     {
+        //         //if the strings are valid, the rocket will launch
+        //         //if the math works out, the rocket will enter rocket launch, and reach orbit
+        //         NEXT_STATE = ROCKET_LAUNCH;
+        //         //if the math does not work out, it will enter rocket crash, and play the according animation
+        //         NEXT_STATE = ROCKET_CRASH;
+        //     }
 
-//         case ROCKET_LAUNCH:
+        // case ROCKET_LAUNCH:
 
-//         case ROCKET_CRASH:
+        // case ROCKET_CRASH:
 
-//         case END:
+        // case END:
 
-//         default:
-//             break;
-
-
-//     }
-//     return NEXT_STATE;
-// }
+        default:
+            NEXT_STATE = CURRENT_STATE;
+            break;
+    }
+    return NEXT_STATE;
+}
 
 void changeState(enum State next_state, enum Planet planet, VGA *vga)
-{
+{   
     //TODO: CHANGE 0 TO CURRENT_DOUBLE_ANGLE
     plotBackground(next_state, planet);
 
@@ -385,7 +355,7 @@ void changeState(enum State next_state, enum Planet planet, VGA *vga)
     wait_for_v_sync(vga);
 
 
-    //read the curret scene 
+    //read the curreNt scene 
     for (int x = 0; x < 320; x++)
         for (int y = 0; y < 240; y++)
             CurrentSceneDefault[x][y] = readPixel(x, y);
@@ -584,16 +554,16 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
     {
         case IDLE:
             plotRocket(128, 150, angle, false);
-            plotBox(0, 60, 70, 140, WHITE, GRAY);
+            plotBox(0, 75, 70, 148, WHITE, GRAY);
 
-            plotString(3, 20, "Angle:");
-            plotBox(10, 75, 50, 12, WHITE, (cursor_x > 10 && cursor_x < 60 && cursor_y > 75 && cursor_y < 87) ? RED : BLACK);
+            plotString(2, 20, "Angle:");
+            plotBox(8, 86, 50, 12, WHITE, (cursor_x > 8 && cursor_x < 58 && cursor_y > 86 && cursor_y < 98) ? RED : BLACK);
 
-            plotString(3, 24, "Initial Speed:");
-            plotBox(10, 100, 50, 12, WHITE, (cursor_x > 10 && cursor_x < 60 && cursor_y > 100 && cursor_y < 112) ? RED : BLACK);
+            plotString(2, 25, "Initial Speed:");
+            plotBox(8, 106, 50, 12, WHITE, (cursor_x > 8 && cursor_x < 58 && cursor_y > 106 && cursor_y < 118) ? RED : BLACK);
 
-            plotString(3, 28, "Rocket Mass:");
-            plotBox(10, 125, 50, 12, WHITE, (cursor_x > 10 && cursor_x < 60 && cursor_y > 125 && cursor_y < 137) ? RED : BLACK);
+            plotString(2, 30, "Rocket Mass:");
+            plotBox(8, 126, 50, 12, WHITE, (cursor_x > 8 && cursor_x < 58 && cursor_y > 126 && cursor_y < 138) ? RED : BLACK);
             
 
             char* angle_string; 
