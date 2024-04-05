@@ -196,7 +196,7 @@ int main()
     {   
         //POLLING TASKS HERE (MOUSE, KEYBOARD, ETC:)
 
-        getMouseData();
+        //getMouseData();
   
         if(CURRENT_STATE < 5 || CURRENT_STATE > 1)
             getKeyBoardData(strings[CURRENT_STATE]);
@@ -787,6 +787,45 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 }
                 break;
 
+            //up arrow key pressed
+            case 0x75:
+                if(READY_TO_READ)
+                {
+                    READY_TO_READ = false;
+                    Y_POSITION -= 1;
+                    
+                }
+                break;
+
+            //down arrow key pressed
+            case 0x72:
+                if(READY_TO_READ)
+                {
+                    READY_TO_READ = false;
+                    Y_POSITION += 1;
+                    
+                }
+                break;
+
+            //left arrow key pressed
+            case 0x6B:
+                if(READY_TO_READ)
+                {
+                    READY_TO_READ = false;
+                    X_POSITION -= 1;
+                    
+                }
+                break;
+
+            //right arrow key pressed
+            case 0x74:
+                if(READY_TO_READ)
+                {
+                    READY_TO_READ = false;
+                    X_POSITION += 1;
+                    
+                }
+                break;
             //enter pressed
             case 0x5A:
                 if(READY_TO_READ)
@@ -807,114 +846,118 @@ void getKeyBoardData(char *CURRENT_TEXT)
     *RLEDs = BYTE2;
 }
 
-void getMouseData()
-{
-    int read_valid = mouse->RVALID & 0b10000000;
-    char* poo;
-    // sprintf(poo, "%i", (int) mouse->RVALID);
-    // clearCharacters(' ');
-    // plotString(0, 0, poo);
-    int PS2_data;
-    // printf("current byte: %d\n", current_byte);   
-    if(read_valid)
-    {
-        // printf("Dog\n");
-        PS2_data = mouse->data;
+// void getMouseData()
+// {
+//     mouse->data = (0xEB);
+//     int read_valid = mouse->RVALID & 0b10000000;
+//     int read_available = mouse->RAVAIL;
+
+//     char* poo;
+//     // sprintf(poo, "%i", (int) mouse->RVALID);
+//     // clearCharacters(' ');
+//     // plotString(0, 0, poo);
+//     int PS2_data;
+//     // printf("current byte: %d\n", current_byte);   
+//     if(read_valid && read_available > 0)
+//     {
+//         // printf("Dog\n");
+//         PS2_data = mouse->data;
  
-        LEFT_MOUSE_CLICK = (PS2_data & 0b1);
-        RIGHT_MOUSE_CLICK = (PS2_data & 0b10);
-        X_SIGN_BIT = (PS2_data & 0b10000);
-        Y_SIGN_BIT = (PS2_data & 0b100000);
+//         LEFT_MOUSE_CLICK = (PS2_data & 0b1);
+//         RIGHT_MOUSE_CLICK = (PS2_data & 0b10);
+//         X_SIGN_BIT = (PS2_data & 0b10000);
+//         Y_SIGN_BIT = (PS2_data & 0b100000);
         
-        PS2_data = mouse->data;
+//         PS2_data = mouse->data;
 
-        //if the sign is negative
-        if(X_SIGN_BIT)
-        {   
-            char dumbo[20];
-            sprintf(dumbo, "dx: -%d", (PS2_data ^ 0b11111111));
-            plotString(0, 1, dumbo);
-            if(X_POSITION < ((PS2_data ^ 0b11111111) + 1))
-            {
-                NEW_X_POSITION = 0;
-            }
-            else
-            {
-                NEW_X_POSITION = X_POSITION - ((PS2_data ^ 0b11111111) + 1);
-            }
-        }
-        else
-        {
-            char dumbo[20];
-            sprintf(dumbo, "dx: %d", (PS2_data ^ 0b11111111));
-            plotString(0, 1, dumbo);          
-            if(X_POSITION + PS2_data > 320)
-            {
-                NEW_X_POSITION = 320;
-            }
-            else
-            {
-                NEW_X_POSITION = X_POSITION+ PS2_data;
-            }
-        }
-        X_POSITION = NEW_X_POSITION;
+//         //if the sign is negative
+//         if(X_SIGN_BIT)
+//         {   
+//             char dumbo[20];
+//             sprintf(dumbo, "dx: -%d", (PS2_data ^ 0b11111111));
+//             plotString(0, 1, dumbo);
+//             if(X_POSITION < ((PS2_data ^ 0b11111111) + 1))
+//             {
+//                 NEW_X_POSITION = 0;
+//             }
+//             else
+//             {
+//                 NEW_X_POSITION = X_POSITION - ((PS2_data ^ 0b11111111) + 1);
+//             }
+//         }
+//         else
+//         {
+//             char dumbo[20];
+//             sprintf(dumbo, "dx: %d", (PS2_data ^ 0b11111111));
+//             plotString(0, 1, dumbo);          
+//             if(X_POSITION + PS2_data > 320)
+//             {
+//                 NEW_X_POSITION = 320;
+//             }
+//             else
+//             {
+//                 NEW_X_POSITION = X_POSITION+ PS2_data;
+//             }
+//         }
+//         X_POSITION = NEW_X_POSITION;
         
-        PS2_data = mouse->data;
-        if(Y_SIGN_BIT)
-        {
-            char dumbo[20];
-            sprintf(dumbo, "dy: -%d", (PS2_data ^ 0b11111111));
-            plotString(0, 2, dumbo);            
-            if(Y_POSITION < ((PS2_data ^ 0b11111111) + 1))
-            {
-                NEW_Y_POSITION = 0;
-            }
-            else{
-                NEW_Y_POSITION = Y_POSITION + ((PS2_data ^ 0b11111111) + 1);
-            }
-        }
-        else
-        {
-            char dumbo[20];
-            sprintf(dumbo, "dy: %d", (PS2_data ^ 0b11111111));
-            plotString(0, 2, dumbo);              
-            if(Y_POSITION + PS2_data > 240)
-            {
-                NEW_Y_POSITION = 240;
-            }
-            else
-            {
-                NEW_Y_POSITION = Y_POSITION - PS2_data;
-            }
-        }
-        Y_POSITION = NEW_Y_POSITION;
-    }
+//         PS2_data = mouse->data;
+//         if(Y_SIGN_BIT)
+//         {
+//             char dumbo[20];
+//             sprintf(dumbo, "dy: -%d", (PS2_data ^ 0b11111111));
+//             plotString(0, 2, dumbo);            
+//             if(Y_POSITION < ((PS2_data ^ 0b11111111) + 1))
+//             {
+//                 NEW_Y_POSITION = 0;
+//             }
+//             else{
+//                 NEW_Y_POSITION = Y_POSITION + ((PS2_data ^ 0b11111111) + 1);
+//             }
+//         }
+//         else
+//         {
+//             char dumbo[20];
+//             sprintf(dumbo, "dy: %d", (PS2_data ^ 0b11111111));
+//             plotString(0, 2, dumbo);              
+//             if(Y_POSITION + PS2_data > 240)
+//             {
+//                 NEW_Y_POSITION = 240;
+//             }
+//             else
+//             {
+//                 NEW_Y_POSITION = Y_POSITION - PS2_data;
+//             }
+//         }
+//         Y_POSITION = NEW_Y_POSITION;
+//     }
    
-}
+// }
 
-void initializeMouse()
-{
-    // mouse->data = 0xff;
-    // while (mouse->data != 0xfa);
-    mouse->data = 0xff;
-    while(mouse->data != 0xaa);
+// void initializeMouse()
+// {
+//     // mouse->data = 0xff;
+//     // while (mouse->data != 0xfa);
+//     mouse->data = 0xff;
+//     while(mouse->data != 0xaa);
 
-    //enable streaming
-    mouse->data = 0xf4;
-    while(mouse->data != 0xfa);
+//     //enable streaming
+//     // mouse->data = 0xf4;
+//     // while(mouse->data != 0xfa);
 
-    //set sample to 40
-    // mouse->data = 0xf3;
-    // while(mouse->data != 0xfa);
-    // mouse->data = 200;
-    // while(mouse->data != 0xfa);
-}
 
-void disableMouse()
-{
-    mouse->data = 0xf5;
-    while(mouse->data != 0xfa);
-}
+//     //enable remote mode
+//     mouse->data = 0xf0;
+//     while(mouse->data != 0xfa);
+
+//     //set sample to 40
+//     // mouse->data = 0xf3;
+//     // while(mouse->data != 0xfa);
+//     // mouse->data = 200;
+//     // while(mouse->data != 0xfa);
+// }
+
+
 //function that takes in a char array and determines if there is more than 1 "." char or "-" char in the array
 bool checkStringValid(char *string)
 {
