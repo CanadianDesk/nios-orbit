@@ -642,7 +642,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
         switch (BYTE2) 
         {
             case 0x16: // one pressed
-                if(CURRENT_TEXT_IDX >= 19)
+                if(CURRENT_TEXT_IDX >= 9)
                     break;
                 if(READY_TO_READ)
                 {
@@ -654,7 +654,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x1E: // two pressed
-                if(CURRENT_TEXT_IDX >= 19)
+                if(CURRENT_TEXT_IDX >= 9)
                     break;
                 if(READY_TO_READ)
                 {
@@ -666,7 +666,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x26: // three pressed
-                if(CURRENT_TEXT_IDX >= 19)
+                if(CURRENT_TEXT_IDX >= 9)
                     break;
                 if(READY_TO_READ)
                 {
@@ -678,7 +678,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x25: // four pressed
-                if(CURRENT_TEXT_IDX >= 19)
+                if(CURRENT_TEXT_IDX >= 9)
                     break;
                 if(READY_TO_READ)
                 {
@@ -690,7 +690,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x2E: // five pressed
-                if(CURRENT_TEXT_IDX >= 19)
+                if(CURRENT_TEXT_IDX >= 9)
                     break;
                 if(READY_TO_READ)
                 {
@@ -702,7 +702,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x36: // six pressed
-                if(CURRENT_TEXT_IDX >= 19)
+                if(CURRENT_TEXT_IDX >= 9)
                     break;
                 if(READY_TO_READ)
                 {
@@ -715,7 +715,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x3D: // seven pressed
-                if(CURRENT_TEXT_IDX >= 19)
+                if(CURRENT_TEXT_IDX >= 9)
                     break;
                 if(READY_TO_READ)
                 {
@@ -726,7 +726,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 }
                 break;
             case 0x3E: // eight pressed
-                if(CURRENT_TEXT_IDX >= 19)
+                if(CURRENT_TEXT_IDX >= 9)
                     break;
                 if(READY_TO_READ)
                 {
@@ -739,7 +739,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x46: // nine pressed
-                if(CURRENT_TEXT_IDX >= 19)
+                if(CURRENT_TEXT_IDX >= 9)
                     break;
                 if(READY_TO_READ)
                 {
@@ -750,7 +750,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 }
             
             case 0x45: //zero pressed
-                if(CURRENT_TEXT_IDX >= 19)
+                if(CURRENT_TEXT_IDX >= 9)
                     break;
                 if(READY_TO_READ)
                 {
@@ -763,7 +763,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x49: // period ' . ' pressed
-                if(CURRENT_TEXT_IDX >= 19)
+                if(CURRENT_TEXT_IDX >= 9)
                     break;
                 if(READY_TO_READ)
                 {
@@ -776,7 +776,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x4E: // minues sign ' - ' pressed
-                if(CURRENT_TEXT_IDX >= 19)
+                if(CURRENT_TEXT_IDX >= 9)
                     break;
                 if(READY_TO_READ)
                 {
@@ -788,6 +788,10 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 
                 break;
             case 0x66: // backspace pressed
+                if(CURRENT_TEXT_IDX <= 0)
+                {
+                    break;
+                }
                 if(READY_TO_READ)
                 {
                     READY_TO_READ = false;
@@ -808,8 +812,6 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 break;
             default:
                 break;
-
-          
         }
     }
     else
@@ -819,23 +821,33 @@ void getKeyBoardData(char *CURRENT_TEXT)
             //w key pressed
             case 0x1D:
                 Y_POSITION -= 2;
+                if(Y_POSITION <= 0)
+                    Y_POSITION = 0;
                 break;
             //s key pressed
             case 0x1B: 
                 Y_POSITION += 2;
+                if(Y_POSITION >= 240)
+                    Y_POSITION >= 240;
                 break;
 
             //a key pressed
             case 0x1C:
                 X_POSITION -= 2;
+                if(X_POSITION <=0)
+                {
+                    X_POSITION = 0;
+                }
                 break;
 
             //d key pressed
             case 0x23:
-                X_POSITION += 2;    
-                
+                X_POSITION += 2;   
+                if(X_POSITION >=320)
+                {
+                    X_POSITION = 320;
+                }
                 break;
-            
         }
         READY_TO_READ = true;
   
