@@ -828,7 +828,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
             case 0x1B: 
                 Y_POSITION += 2;
                 if(Y_POSITION >= 240)
-                    Y_POSITION >= 240;
+                    Y_POSITION = 240;
                 break;
 
             //a key pressed
