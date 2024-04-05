@@ -16,6 +16,7 @@
 #define BLACK 0x0000
 #define RED 0xF800
 #define WHITE 0xFFFF
+#define GRAY 0x7BEF
 
 /*==================STRUCTS==================*/
 
@@ -583,7 +584,12 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
     {
         case IDLE:
             plotRocket(128, 150, angle, false);
-            plotBox(0, 100, 50, 12, WHITE, (cursor_x < 50 && cursor_y > 100 && cursor_y < 112) ? RED : BLACK);
+            plotBox(0, 60, 70, 140, WHITE, GRAY);
+            plotBox(10, 100, 50, 12, WHITE, (cursor_x < 50 && cursor_y > 100 && cursor_y < 112) ? RED : BLACK);
+            plotBox(10, 75, 50, 12, WHITE, (cursor_x < 50 && cursor_y > 100 && cursor_y < 112) ? RED : BLACK);
+            plotBox(10, 125, 50, 12, WHITE, (cursor_x < 50 && cursor_y > 100 && cursor_y < 112) ? RED : BLACK);
+            
+
             char* angle_string; 
             sprintf(angle_string, "Angle: %.3d", angle);
             plotString(1, 26, CURRENT_TEXT_ANGLE);
@@ -793,42 +799,6 @@ void getKeyBoardData(char *CURRENT_TEXT)
                     READY_TO_READ = false;
                     ENTER_PRESSED = true;
                 }
-                break;
-
-            // //w key pressed
-            // case 0x1D:
-            //     if(READY_TO_READ)
-            //     {
-            //         READY_TO_READ = false;
-            //         Y_POSITION -= 2;
-            //     }
-            //     break;
-            // //s key pressed
-            // case 0x1B: 
-            //     if(READY_TO_READ)
-            //     {
-            //         READY_TO_READ = false;
-            //         Y_POSITION += 2;
-            //     }
-            //     break;
-
-            // //a key pressed
-            // case 0x1C:
-            //     if(READY_TO_READ)
-            //     {
-            //         READY_TO_READ = false;
-            //         X_POSITION -= 2;
-            //     }
-            //     break;
-
-            // //d key pressed
-            // case 0x23:
-            //     if(READY_TO_READ)
-            //     {
-            //         READY_TO_READ = false;
-            //         X_POSITION += 2;  
-            //     }  
-                
                 break;
             default:
                 break;
