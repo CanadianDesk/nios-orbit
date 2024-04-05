@@ -585,9 +585,15 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
         case IDLE:
             plotRocket(128, 150, angle, false);
             plotBox(0, 60, 70, 140, WHITE, GRAY);
-            plotBox(10, 100, 50, 12, WHITE, (cursor_x < 50 && cursor_y > 100 && cursor_y < 112) ? RED : BLACK);
-            plotBox(10, 75, 50, 12, WHITE, (cursor_x < 50 && cursor_y > 100 && cursor_y < 112) ? RED : BLACK);
-            plotBox(10, 125, 50, 12, WHITE, (cursor_x < 50 && cursor_y > 100 && cursor_y < 112) ? RED : BLACK);
+
+            plotString(3, 20, "Angle:");
+            plotBox(10, 75, 50, 12, WHITE, (cursor_x > 10 && cursor_x < 60 && cursor_y > 75 && cursor_y < 87) ? RED : BLACK);
+
+            plotString(3, 24, "Initial Speed:");
+            plotBox(10, 100, 50, 12, WHITE, (cursor_x > 10 && cursor_x < 60 && cursor_y > 100 && cursor_y < 112) ? RED : BLACK);
+
+            plotString(3, 28, "Rocket Mass:");
+            plotBox(10, 125, 50, 12, WHITE, (cursor_x > 10 && cursor_x < 60 && cursor_y > 125 && cursor_y < 137) ? RED : BLACK);
             
 
             char* angle_string; 
