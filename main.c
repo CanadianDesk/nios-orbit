@@ -206,7 +206,7 @@ int main()
         
         char mouse_pos[25];
         sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
-        char current_state[25];
+        char current_state[25] = "                     ";
         switch (CURRENT_STATE)
         {
             case TITLE:
@@ -248,7 +248,7 @@ int main()
         plotString(0, 0, mouse_pos);
 
         eraseCursor();
-        drawCurrentScene(IDLE, MARS, 0, X_POSITION, Y_POSITION);
+        drawCurrentScene(CURRENT_STATE, CURRENT_PLANET, 0, X_POSITION, Y_POSITION);
         drawCursor(X_POSITION, Y_POSITION);
         
         //write a 1 to the vga front buffer to swap buffers
@@ -605,18 +605,22 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
     switch (state)
     {
         case TITLE:
+            return;
             break;
         case IDLE:
             plotRocket(128, 150, angle, false);
             plotBox(0, 75, 70, 148, WHITE, GRAY);
 
             plotString(2, 20, "Angle:");
+            plotString(2, 22, CURRENT_TEXT_ANGLE);
             plotBox(8, 86, 50, 12, WHITE, (cursor_x > 8 && cursor_x < 58 && cursor_y > 86 && cursor_y < 98) ? RED : BLACK);
 
             plotString(2, 25, "Initial Speed:");
+            plotString(2, 27, CURRENT_TEXT_SPEED);
             plotBox(8, 106, 50, 12, WHITE, (cursor_x > 8 && cursor_x < 58 && cursor_y > 106 && cursor_y < 118) ? RED : BLACK);
 
             plotString(2, 30, "Rocket Mass:");
+            plotString(2, 32, CURRENT_TEXT_MASS);
             plotBox(8, 126, 50, 12, WHITE, (cursor_x > 8 && cursor_x < 58 && cursor_y > 126 && cursor_y < 138) ? RED : BLACK);
             break;
         case CHANGE_ANGLE:
@@ -624,19 +628,55 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
             plotBox(0, 75, 70, 148, WHITE, GRAY);
 
             plotString(2, 20, "Angle:");
+            plotString(2, 22, CURRENT_TEXT_ANGLE);
             plotBox(8, 86, 50, 12, WHITE, RED);
 
             plotString(2, 25, "Initial Speed:");
+            plotString(2, 27, CURRENT_TEXT_SPEED);
             plotBox(8, 106, 50, 12, WHITE, BLACK);
 
             plotString(2, 30, "Rocket Mass:");
+            plotString(2, 32, CURRENT_TEXT_MASS);
             plotBox(8, 126, 50, 12, WHITE, BLACK);
+            break;
+        case CHANGE_SPEED:
+            plotRocket(128, 150, angle, false);
+            plotBox(0, 75, 70, 148, WHITE, GRAY);
+
+            plotString(2, 20, "Angle:");
+            plotString(2, 22, CURRENT_TEXT_ANGLE);
+            plotBox(8, 86, 50, 12, WHITE, BLACK);
+
+            plotString(2, 25, "Initial Speed:");
+            plotString(2, 27, CURRENT_TEXT_SPEED);
+            plotBox(8, 106, 50, 12, WHITE, RED);
+
+            plotString(2, 30, "Rocket Mass:");
+            plotString(2, 32, CURRENT_TEXT_MASS);
+            plotBox(8, 126, 50, 12, WHITE, BLACK);
+            break;
+        case CHANGE_MASS:
+            plotRocket(128, 150, angle, false);
+            plotBox(0, 75, 70, 148, WHITE, GRAY);
+
+            plotString(2, 20, "Angle:");
+            plotString(2, 22, CURRENT_TEXT_ANGLE);
+            plotBox(8, 86, 50, 12, WHITE, BLACK);
+
+            plotString(2, 25, "Initial Speed:");
+            plotString(2, 27, CURRENT_TEXT_SPEED);
+            plotBox(8, 106, 50, 12, WHITE, BLACK);
+
+            plotString(2, 30, "Rocket Mass:");
+            plotString(2, 32, CURRENT_TEXT_MASS);
+            plotBox(8, 126, 50, 12, WHITE, RED);
             break;
         case END:
             break;
         default:
             break;
     }
+    return;
 }
 
 void drawCursor(int x, int y)
