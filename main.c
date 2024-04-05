@@ -267,12 +267,17 @@ int main()
 // finds the next state of the fsm depending on the current state
 enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enum Planet planet, VGA *vga)
 {
-    enum State NEXT_STATE;
+    enum State NEXT_STATE = CURRENT_STATE;
      //CONTROL PATH
     switch(CURRENT_STATE)
     {
         case TITLE:
-            NEXT_STATE = ENTER_PRESSED ? IDLE : TITLE;
+            if (ENTER_PRESSED)
+            {
+                NEXT_STATE = IDLE;
+                changeState(IDLE, planet, vga);
+                ENTER_PRESSED = false;
+            }
             break;
         case IDLE:
             if(ENTER_PRESSED)
@@ -281,6 +286,7 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
                 {
                     NEXT_STATE = CHANGE_ANGLE;
                     changeState(CHANGE_ANGLE, planet, vga);
+                    ENTER_PRESSED = false;
                 }
 
                 //if the x y position are where the change speed bar is
@@ -288,6 +294,7 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
                 {
                     NEXT_STATE = CHANGE_SPEED;
                     changeState(CHANGE_SPEED, planet, vga);
+                    ENTER_PRESSED = false;
                 }
 
                 //if the x y position are where the change mass bar is
@@ -295,6 +302,7 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
                 {
                     NEXT_STATE = CHANGE_MASS;
                     changeState(CHANGE_MASS, planet, vga);
+                    ENTER_PRESSED = false;
                 }
 
                 //if the x y position are where the launch rocket button is
@@ -302,10 +310,6 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
 
                 //if the x y position are where the change planet button is
                 // NEXT_STATE = CHANGE_PLANET;
-            }
-            else
-            {
-                NEXT_STATE = IDLE;
             }
             break;
             
@@ -315,9 +319,8 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
             {
                 NEXT_STATE = IDLE;
                 changeState(IDLE, planet, vga);
+                ENTER_PRESSED = false;
             }
-            else   
-                NEXT_STATE = CHANGE_ANGLE;
             break;
 
         case CHANGE_SPEED:
@@ -325,9 +328,8 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
             if(ENTER_PRESSED){
                 NEXT_STATE = IDLE;
                 changeState(IDLE, planet, vga);
+                ENTER_PRESSED = false;
             }
-            else
-                NEXT_STATE = CHANGE_SPEED;
             break;
 
         case CHANGE_MASS:
@@ -336,9 +338,8 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
             {
                 NEXT_STATE = IDLE;
                 changeState(IDLE, planet, vga);
+                ENTER_PRESSED = false;
             }
-            else
-                NEXT_STATE = CHANGE_MASS;
             break;
         
         // case CHANGE_PLANET:
@@ -385,6 +386,7 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
 
 void changeState(enum State next_state, enum Planet planet, VGA *vga)
 {   
+    voidScreen(BLACK);
     //TODO: CHANGE 0 TO CURRENT_DOUBLE_ANGLE
     plotBackground(next_state, planet);
 
