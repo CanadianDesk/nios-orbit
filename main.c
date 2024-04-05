@@ -92,7 +92,7 @@ char CURRENT_TEXT_ANGLE[10] = "          ";
 
 double CURRENT_DOUBLE_ANGLE;
 
-char* strings[] = {CURRENT_TEXT_MASS, CURRENT_TEXT_SPEED, CURRENT_TEXT_ANGLE};
+char* strings[] = {CURRENT_TEXT_ANGLE, CURRENT_TEXT_SPEED,  CURRENT_TEXT_MASS};
 
 /*==================BITMAPS==================*/
 
@@ -202,7 +202,7 @@ int main()
         //getMouseData();
   
         // if(CURRENT_STATE < 5 || CURRENT_STATE > 1)
-        getKeyBoardData(strings[CURRENT_STATE]);
+        getKeyBoardData(strings[CURRENT_STATE - 2]);
         
         char mouse_pos[25];
         sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
