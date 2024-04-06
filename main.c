@@ -173,10 +173,13 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
 //draws the cursor
 void drawCursor(int x, int y);
 //gets the mouse data   
+void drawSwitches();
+
 
 //gets the keyboard data
 void getKeyBoardData(char *CURRENT_TEXT, enum State CURRENT_STATE);
-//init mouse
+//gets the switch data
+void getSwitchData();
 
 //mouse erasign
 void eraseCursor();
