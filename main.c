@@ -21,6 +21,7 @@
 #define GRAY 0x7BEF
 #define LIGHT_GRAY 0xC618
 #define LIGHT_GREEN 0x87F0
+#define GREEN 0x07E0
 
 /*==================STRUCTS==================*/
 
@@ -203,6 +204,7 @@ void getKeyBoardData(char *CURRENT_TEXT, enum State CURRENT_STATE);
 void getSwitchData();
 //display planet fact panel
 void displayFactPanel(enum Planet planet);
+void drawLaunchButton();
 
 //mouse erasign
 void eraseCursor();
@@ -709,6 +711,9 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
 
             //edit panel:
             displayEditPanel(state, cursor_x, cursor_y);
+
+            //launch button:
+            drawLaunchButton(cursor_x, cursor_y);
             break;
         case CHANGE_ANGLE:
             //planet box:
@@ -723,6 +728,9 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
 
             //edit panel:
             displayEditPanel(state, cursor_x, cursor_y);
+            
+            //launch button:
+            drawLaunchButton(cursor_x, cursor_y);
             break;
         case CHANGE_SPEED:
             //planet box:
@@ -737,6 +745,9 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
 
             //edit panel:
             displayEditPanel(state, cursor_x, cursor_y);
+
+            //launch button:
+            drawLaunchButton(cursor_x, cursor_y);
             break;
         case CHANGE_MASS:
             //planet box:
@@ -751,6 +762,9 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
 
             //edit panel:
             displayEditPanel(state, cursor_x, cursor_y);
+
+            //launch button:
+            drawLaunchButton(cursor_x, cursor_y);
             break;
         case CHANGE_PLANET:
             //planet box:
@@ -783,6 +797,9 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
                 displayFactPanel(2);
             if (cursor_x > 280 && cursor_x < 320 && cursor_y > 48 && cursor_y < 60)
                 displayFactPanel(3);
+
+            //launch button:
+            drawLaunchButton(cursor_x, cursor_y);
             break;
         case END:
             break;
@@ -850,6 +867,12 @@ void displayFactPanel(enum Planet planet)
     plotString(36, 4, radius);
     plotString(36, 7, atmosphere);
     plotString(36, 10, density);
+}
+
+void drawLaunchButton(int cursor_x, int cursor_y)
+{
+    plotBox(0, 146, 70, 12, WHITE, cursor_x > 0 && cursor_x < 70 && cursor_y > 146 && cursor_y < 176 ? GREEN : RED);
+    plotString(5, 38, "LAUNCH");
 }
 
 void drawCursor(int x, int y, enum State state)
