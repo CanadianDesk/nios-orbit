@@ -611,7 +611,7 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
             break;
         case IDLE:
             plotRocket(128, 150, angle, false);
-            plotBox(0, 75, 70, 148, WHITE, GRAY);
+            plotBox(0, 75, 70, 63, WHITE, GRAY);
 
             plotString(2, 20, "Angle:");
             plotString(2, 22, CURRENT_TEXT_ANGLE);
@@ -627,7 +627,7 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
             break;
         case CHANGE_ANGLE:
             plotRocket(128, 150, angle, false);
-            plotBox(0, 75, 70, 148, WHITE, GRAY);
+            plotBox(0, 75, 70, 63, WHITE, GRAY);
 
             plotString(2, 20, "Angle:");
             plotString(2, 22, CURRENT_TEXT_ANGLE);
@@ -673,6 +673,32 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
 
             plotString(2, 30, "Rocket Mass:");
             plotString(2, 32, CURRENT_TEXT_MASS);
+            plotBox(8, 126, 50, 12, WHITE, RED);
+            break;
+        case CHANGE_SPEED:
+            plotRocket(128, 150, angle, false);
+            plotBox(0, 75, 70, 63, WHITE, GRAY);
+
+            plotString(2, 20, "Angle:");
+            plotBox(8, 86, 50, 12, WHITE, BLACK);
+
+            plotString(2, 25, "Initial Speed:");
+            plotBox(8, 106, 50, 12, WHITE, RED);
+
+            plotString(2, 30, "Rocket Mass:");
+            plotBox(8, 126, 50, 12, WHITE, BLACK);
+            break;
+        case CHANGE_MASS:
+            plotRocket(128, 150, angle, false);
+            plotBox(0, 75, 70, 63, WHITE, GRAY);
+
+            plotString(2, 20, "Angle:");
+            plotBox(8, 86, 50, 12, WHITE, BLACK);
+
+            plotString(2, 25, "Initial Speed:");
+            plotBox(8, 106, 50, 12, WHITE, BLACK);
+
+            plotString(2, 30, "Rocket Mass:");
             plotBox(8, 126, 50, 12, WHITE, RED);
             break;
         case END:
