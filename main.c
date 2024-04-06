@@ -1097,16 +1097,16 @@ void getKeyBoardData(char *CURRENT_TEXT, enum State CURRENT_STATE)
 
 void getSwitchData()
 {
-    POWER_ON = switches->data & 0b0000000001;
-    GROUND_SUPPORT_EQUIPMENT_DISCONNECT = switches->data & 0b0000000010;
-    FLIGHT_COMPUTER = switches->data & 0b0000000100;
-    MATH_ENGINE = switches->data & 0b0000001000;
-    RANGE_SAFETY_SYSTEM = switches->data & 0b0000010000;
-    PROPELLANT_TANK_PRESSURIZATION = switches->data & 0b0000100000;
-    IGNITION_SEQUENCE = switches->data & 0b0001000000;
-    LAUNCH_COMMIT = switches->data & 0b0010000000;
-    THRUST_VECTOR_CONTROL = switches->data & 0b0100000000;
-    TELEMETRY_SYSTEMS = switches->data & 0b1000000000;
+    POWER_ON = switches->data & 0b1000000000;
+    GROUND_SUPPORT_EQUIPMENT_DISCONNECT = switches->data & 0b0100000000;
+    FLIGHT_COMPUTER = switches->data & 0b0010000000;
+    MATH_ENGINE = switches->data & 0b0001000000;
+    RANGE_SAFETY_SYSTEM = switches->data & 0b0000100000;
+    PROPELLANT_TANK_PRESSURIZATION = switches->data & 0b0000010000;
+    IGNITION_SEQUENCE = switches->data & 0b0000001000;
+    LAUNCH_COMMIT = switches->data & 0b0000000100;
+    THRUST_VECTOR_CONTROL = switches->data & 0b0000000010;
+    TELEMETRY_SYSTEMS = switches->data & 0b0000000001;
 }
 
 //function that takes in a char array and determines if there is more than 1 "." char or "-" char in the array
