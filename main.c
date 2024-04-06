@@ -336,7 +336,7 @@ int main()
         plotString(0, 0, mouse_pos);
 
         eraseCursor();
-        drawCurrentScene(CURRENT_STATE, CURRENT_PLANET, 0, X_POSITION, Y_POSITION);
+        drawCurrentScene(CURRENT_STATE, CURRENT_PLANET, ROCKET_START_ANGLE, X_POSITION, Y_POSITION);
         drawCursor(X_POSITION, Y_POSITION, CURRENT_STATE);
         
         //write a 1 to the vga front buffer to swap buffers
@@ -840,11 +840,11 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
 void displayEditPanel(enum State state, int cursor_x, int cursor_y)
 {
     plotBox(0, 75, 70, 70, WHITE, GRAY);
-    plotString(2, 20, "Angle:");
+    plotString(2, 20, "Angle (deg):");
     plotString(2, 22, CURRENT_TEXT_ANGLE);
-    plotString(2, 25, "Initial Speed:");
+    plotString(2, 25, "Initial Speed (m/s):");
     plotString(2, 27, CURRENT_TEXT_SPEED);
-    plotString(2, 30, "Rocket Mass:");
+    plotString(2, 30, "Rocket Mass (kg):");
     plotString(2, 32, CURRENT_TEXT_MASS);
 
     //decide box highlight based on state
@@ -1324,16 +1324,17 @@ bool checkStringValid(char *string, enum State CURRENT_STATE)
     }
     return true;
 }
-
+#ifdef AUDIO
 void playSoundEffects()
 {
     //get the number of available words
     RIGHT_AVAILABLE = audiop->wsrc;
     //write that many words to the FIFO, and then increment the index accordingly
     int start = WET_HANDS_INDEX;
+    int end;
     if(WET_HANDS_INDEX + RIGHT_AVAILABLE > 720352)
     {
-        int end = WET_HANDS_INDEX + RIGHT_AVAILABLE - 720352;
+        end = WET_HANDS_INDEX + RIGHT_AVAILABLE - 720352;
         for(int i = start; i < 720352; i++)
         {
             audiop->ldata = wethands[i];
@@ -1347,7 +1348,7 @@ void playSoundEffects()
     }
     else
     {
-        int end = WET_HANDS_INDEX + RIGHT_AVAILABLE;
+        end = WET_HANDS_INDEX + RIGHT_AVAILABLE;
         for(int i = start; i < end; i++)
         {
             audiop->ldata = wethands[i];
@@ -1356,6 +1357,7 @@ void playSoundEffects()
     }
     WET_HANDS_INDEX = end;
 }   
+#endif
 bool checkAngleValue(char* angle_string)
 {
     double num = atof(angle_string);
