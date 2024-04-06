@@ -49,6 +49,7 @@ enum State {
     CHANGE_PLANET,
     ROCKET_READY,
     ROCKET_LAUNCH,
+    ROCKET_PATH,
     ROCKET_CRASH,
     END
 };
@@ -210,6 +211,7 @@ short readPixel(int x, int y);
 void changeState(enum State next_state, enum Planet planet, VGA *vga);  
 enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enum Planet planet, VGA *vga);
 
+void displayEditPanel(enum State state, int cursor_x, int cursor_y);
 
 /*==================GLOBALS==================*/
 //using 320 x 240 vga resolution
@@ -340,10 +342,10 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
         case IDLE:
             if(ENTER_PRESSED)
             {
+                ENTER_PRESSED = false;
                 if (cursor_x > 8 && cursor_x < 58 && cursor_y > 86 && cursor_y < 98)
                 {
                     NEXT_STATE = CHANGE_ANGLE;
-                    ENTER_PRESSED = false;
                     changeState(CHANGE_ANGLE, planet, vga);
                 }
 
@@ -352,7 +354,6 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
                 {
                     NEXT_STATE = CHANGE_SPEED;
                     changeState(CHANGE_SPEED, planet, vga);
-                    ENTER_PRESSED = false;
                 }
 
                 //if the x y position are where the change mass bar is
@@ -360,7 +361,6 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
                 {
                     NEXT_STATE = CHANGE_MASS;
                     changeState(CHANGE_MASS, planet, vga);
-                    ENTER_PRESSED = false;
                 }
 
                 //if the x y position are where the launch rocket button is
@@ -371,7 +371,6 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
                 {
                     NEXT_STATE = CHANGE_PLANET;
                     changeState(CHANGE_PLANET, planet, vga);
-                    ENTER_PRESSED = false;
                 }
             }
             break;
@@ -475,6 +474,7 @@ void changeState(enum State next_state, enum Planet planet, VGA *vga)
 
     wait_for_v_sync(vga);
 
+    clearCharacters(' ');
 
     //read the curreNt scene 
     for (int x = 0; x < 320; x++)
@@ -694,88 +694,66 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
             return;
             break;
         case IDLE:
+            //planet box:
             plotBox(280, 0, 40, 12, WHITE, cursor_x > 280 && cursor_x < 320 && cursor_y > 0 && cursor_y < 12 ? RED : BLACK);
             plotString(71, 1, planet_string);
 
+            //rocket:
             plotRocket(128, 150, angle, false);
-            //outline box for angle, speed, mass, etc
-            plotBox(0, 75, 70, 70, WHITE, GRAY);
-            
+
+            //switches
             drawSwitches();
 
-            plotString(2, 20, "Angle:");
-            plotString(2, 22, CURRENT_TEXT_ANGLE);
-            plotBox(6, 86, 50, 12, WHITE, (cursor_x > 8 && cursor_x < 58 && cursor_y > 86 && cursor_y < 98) ? RED : BLACK);
-
-            plotString(2, 25, "Initial Speed:");
-            plotString(2, 27, CURRENT_TEXT_SPEED);
-            plotBox(6, 106, 50, 12, WHITE, (cursor_x > 8 && cursor_x < 58 && cursor_y > 106 && cursor_y < 118) ? RED : BLACK);
-
-            plotString(2, 30, "Rocket Mass:");
-            plotString(2, 32, CURRENT_TEXT_MASS);
-            plotBox(6, 126, 50, 12, WHITE, (cursor_x > 8 && cursor_x < 58 && cursor_y > 126 && cursor_y < 138) ? RED : BLACK);
+            //edit panel:
+            displayEditPanel(state, cursor_x, cursor_y);
             break;
         case CHANGE_ANGLE:
+            //planet box:
             plotBox(280, 0, 40, 12, WHITE, cursor_x > 280 && cursor_x < 320 && cursor_y > 0 && cursor_y < 12 ? RED : BLACK);
             plotString(71, 1, planet_string);
 
+            //rocket:
             plotRocket(128, 150, angle, false);
-            plotBox(0, 75, 70, 70, WHITE, GRAY);
 
-            plotString(2, 20, "Angle:");
-            plotString(2, 22, CURRENT_TEXT_ANGLE);
-            plotBox(6, 86, 50, 12, WHITE, RED);
+            //switches
+            drawSwitches();
 
-            plotString(2, 25, "Initial Speed:");
-            plotString(2, 27, CURRENT_TEXT_SPEED);
-            plotBox(6, 106, 50, 12, WHITE, BLACK);
-
-            plotString(2, 30, "Rocket Mass:");
-            plotString(2, 32, CURRENT_TEXT_MASS);
-            plotBox(6, 126, 50, 12, WHITE, BLACK);
-
+            //edit panel:
+            displayEditPanel(state, cursor_x, cursor_y);
             break;
         case CHANGE_SPEED:
+            //planet box:
             plotBox(280, 0, 40, 12, WHITE, cursor_x > 280 && cursor_x < 320 && cursor_y > 0 && cursor_y < 12 ? RED : BLACK);
             plotString(71, 1, planet_string);
 
+            //rocket:
             plotRocket(128, 150, angle, false);
-            plotBox(0, 75, 70, 70, WHITE, GRAY);
 
-            plotString(2, 20, "Angle:");
-            plotString(2, 22, CURRENT_TEXT_ANGLE);
-            plotBox(6, 86, 50, 12, WHITE, BLACK);
+            //switches
+            drawSwitches();
 
-            plotString(2, 25, "Initial Speed:");
-            plotString(2, 27, CURRENT_TEXT_SPEED);
-            plotBox(6, 106, 50, 12, WHITE, RED);
-
-            plotString(2, 30, "Rocket Mass:");
-            plotString(2, 32, CURRENT_TEXT_MASS);
-            plotBox(6, 126, 50, 12, WHITE, BLACK);
+            //edit panel:
+            displayEditPanel(state, cursor_x, cursor_y);
             break;
         case CHANGE_MASS:
+            //planet box:
             plotBox(280, 0, 40, 12, WHITE, cursor_x > 280 && cursor_x < 320 && cursor_y > 0 && cursor_y < 12 ? RED : BLACK);
             plotString(71, 1, planet_string);
 
+            //rocket:
             plotRocket(128, 150, angle, false);
-            plotBox(0, 75, 70, 70, WHITE, GRAY);
 
-            plotString(2, 20, "Angle:");
-            plotString(2, 22, CURRENT_TEXT_ANGLE);
-            plotBox(6, 86, 50, 12, WHITE, BLACK);
+            //switches
+            drawSwitches();
 
-            plotString(2, 25, "Initial Speed:");
-            plotString(2, 27, CURRENT_TEXT_SPEED);
-            plotBox(6, 106, 50, 12, WHITE, BLACK);
-
-            plotString(2, 30, "Rocket Mass:");
-            plotString(2, 32, CURRENT_TEXT_MASS);
-            plotBox(6, 126, 50, 12, WHITE, RED);
+            //edit panel:
+            displayEditPanel(state, cursor_x, cursor_y);
             break;
         case CHANGE_PLANET:
+            //planet box:
             plotBox(280, 0, 40, 12, WHITE, RED);
             plotString(71, 1, planet_string);
+            //list of planet boxes:
             plotBox(280, 12, 40, 12, WHITE, cursor_x > 280 && cursor_x < 320 && cursor_y > 12 && cursor_y < 24 ? RED : BLACK);
             plotString(71, 4, PLANETS[0].name);
             plotBox(280, 24, 40, 12, WHITE, cursor_x > 280 && cursor_x < 320 && cursor_y > 24 && cursor_y < 36 ? RED : BLACK);
@@ -785,20 +763,13 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
             plotBox(280, 48, 40, 12, WHITE, cursor_x > 280 && cursor_x < 320 && cursor_y > 48 && cursor_y < 60 ? RED : BLACK);
             plotString(71, 13, PLANETS[3].name);
 
+            //rocket:
             plotRocket(128, 150, angle, false);
-            plotBox(0, 75, 70, 70, WHITE, GRAY);
 
-            plotString(2, 20, "Angle:");
-            plotString(2, 22, CURRENT_TEXT_ANGLE);
-            plotBox(6, 86, 50, 12, WHITE, BLACK);
+            //switches
 
-            plotString(2, 25, "Initial Speed:");
-            plotString(2, 27, CURRENT_TEXT_SPEED);
-            plotBox(6, 106, 50, 12, WHITE, BLACK);
-
-            plotString(2, 30, "Rocket Mass:");
-            plotString(2, 32, CURRENT_TEXT_MASS);
-            plotBox(6, 126, 50, 12, WHITE, BLACK);
+            //edit panel:
+            displayEditPanel(IDLE, cursor_x, cursor_y);
 
             //check if the cursor is over any of the plant boxes, call displayFactPanel if it is
             if (cursor_x > 280 && cursor_x < 320 && cursor_y > 12 && cursor_y < 24)
@@ -809,7 +780,6 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
                 displayFactPanel(2);
             if (cursor_x > 280 && cursor_x < 320 && cursor_y > 48 && cursor_y < 60)
                 displayFactPanel(3);
-
             break;
         case END:
             break;
@@ -819,22 +789,64 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
     return;
 }
 
+void displayEditPanel(enum State state, int cursor_x, int cursor_y)
+{
+    plotBox(0, 75, 70, 70, WHITE, GRAY);
+    plotString(2, 20, "Angle:");
+    plotString(2, 22, CURRENT_TEXT_ANGLE);
+    plotString(2, 25, "Initial Speed:");
+    plotString(2, 27, CURRENT_TEXT_SPEED);
+    plotString(2, 30, "Rocket Mass:");
+    plotString(2, 32, CURRENT_TEXT_MASS);
+
+    //decide box highlight based on state
+    switch (state)
+    {
+        case IDLE:
+            plotBox(6, 86, 50, 12, WHITE, (cursor_x > 8 && cursor_x < 58 && cursor_y > 86 && cursor_y < 98) ? RED : BLACK);
+            plotBox(6, 106, 50, 12, WHITE, (cursor_x > 8 && cursor_x < 58 && cursor_y > 106 && cursor_y < 118) ? RED : BLACK);
+            plotBox(6, 126, 50, 12, WHITE, (cursor_x > 8 && cursor_x < 58 && cursor_y > 126 && cursor_y < 138) ? RED : BLACK);
+            break;
+        case CHANGE_ANGLE:
+            plotBox(6, 86, 50, 12, WHITE, RED);
+            plotBox(6, 106, 50, 12, WHITE, BLACK);
+            plotBox(6, 126, 50, 12, WHITE, BLACK);
+            break;
+        case CHANGE_SPEED:
+            plotBox(6, 86, 50, 12, WHITE, BLACK);
+            plotBox(6, 106, 50, 12, WHITE, RED);
+            plotBox(6, 126, 50, 12, WHITE, BLACK);
+            break;
+        case CHANGE_MASS:
+            plotBox(6, 86, 50, 12, WHITE, BLACK);
+            plotBox(6, 106, 50, 12, WHITE, BLACK);
+            plotBox(6, 126, 50, 12, WHITE, RED);
+            break;
+        default:
+            break;
+    }
+}
+
 void displayFactPanel(enum Planet planet)
 {
     char mass[40] = "Mass: ";
     strcat(mass, PLANETS[planet].mass_string);
+    strcat(mass, "   ");
     char radius[40] = "Radius: ";
     strcat(radius, PLANETS[planet].radius_string);
+    strcat(radius, "      ");
     char atmosphere[40] = "Atmosphereic Height: ";
     strcat(atmosphere, PLANETS[planet].atmosphereic_height_string);
+    strcat(atmosphere, "    ");
     char density[40] = "Atmosphere Avg Density: ";
     strcat(density, PLANETS[planet].atmosphere_avg_density_string);
+    strcat(density, "    ");
 
-    plotBox(160, 0, 120, 80, WHITE, GRAY);
-    plotString(41, 0, mass);
-    plotString(41, 3, radius);
-    plotString(41, 6, atmosphere);
-    plotString(41, 9, density);
+    plotBox(140, 0, 140, 60, WHITE, GRAY);
+    plotString(36, 1, mass);
+    plotString(36, 4, radius);
+    plotString(36, 7, atmosphere);
+    plotString(36, 10, density);
 }
 
 void drawCursor(int x, int y, enum State state)
