@@ -130,9 +130,9 @@ struct PS2 *const mouse = ((struct PS2 *) PS2_DUAL_BASE);
 struct Switches *const switches = ((struct Switches *) SWITCH_BASE);
 struct audio_t *const audiop = ((struct audio_t *) AUDIO_BASE);
 
-char CURRENT_TEXT_MASS[10] = ""; 
-char CURRENT_TEXT_SPEED[10] = ""; 
-char CURRENT_TEXT_ANGLE[10] = ""; 
+char CURRENT_TEXT_MASS[10] = "100"; 
+char CURRENT_TEXT_SPEED[10] = "300"; 
+char CURRENT_TEXT_ANGLE[10] = "0"; 
 
 double CURRENT_DOUBLE_ANGLE;
 
@@ -402,6 +402,11 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
                 {
                     NEXT_STATE = CHANGE_PLANET;
                     changeState(CHANGE_PLANET, planet, vga);
+                }
+                //if the x y position are where the launch button is
+                if (cursor_x > 0 && cursor_x < 70 && cursor_y > 146 && cursor_y < 176)
+                {
+                    changeState(ROCKET_READY, planet, vga);
                 }
             }
             break;
@@ -832,6 +837,10 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
             //launch button:
             drawLaunchButton(cursor_x, cursor_y);
             break;
+        case ROCKET_READY:
+            //rocket:
+            plotRocket(128, 150, angle, false);
+            break;
         case END:
             break;
         default:
@@ -909,7 +918,7 @@ void drawLaunchButton(int cursor_x, int cursor_y)
 void drawCursor(int x, int y, enum State state)
 {
     //dont draw cursor if in state w/ no cursor
-    if (state == TITLE || state == CHANGE_ANGLE || state == CHANGE_SPEED || state == CHANGE_MASS || state == END) return;
+    if (state == TITLE || state == CHANGE_ANGLE || state == CHANGE_SPEED || state == CHANGE_MASS || state == END || state == ROCKET_READY) return;
 
     for (int i = 0; i < 16; i++)
         for (int j = 0; j < 16; j++)
