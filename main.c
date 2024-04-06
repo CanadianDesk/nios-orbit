@@ -5,7 +5,7 @@
 #include <math.h>
 #define PS2_BASE			0xFF200100
 #define PS2_DUAL_BASE		0xFF200108
-#define SWITCH_BASE			0xFF200000
+#define SWITCH_BASE			0xFF200040
 //#define LED_BASE			0xFF200000
 
 #define RLEDs ((volatile long *) 0xFF200000)
@@ -18,6 +18,8 @@
 #define RED 0xF800
 #define WHITE 0xFFFF
 #define GRAY 0x7BEF
+#define LIGHT_GRAY 0xC618
+#define LIGHT_GREEN 0x87F0
 
 /*==================STRUCTS==================*/
 
@@ -57,6 +59,9 @@ struct PS2 {
     volatile int control; //ps2 control register, dont have to worry about it
 };
 
+struct Switches {
+    volatile short int data; //16 bits of data, only need the first 10
+};
 
 /*==================GLOBALS==================*/
 
@@ -88,6 +93,7 @@ int MASS_IDX = 0;
 
 struct PS2 *const keyboard = ((struct PS2 *) PS2_BASE);
 struct PS2 *const mouse = ((struct PS2 *) PS2_DUAL_BASE);
+struct Switches *const switches = ((struct Switches *) SWITCH_BASE);
 
 char CURRENT_TEXT_MASS[10] = ""; 
 char CURRENT_TEXT_SPEED[10] = ""; 
@@ -96,6 +102,18 @@ char CURRENT_TEXT_ANGLE[10] = "";
 double CURRENT_DOUBLE_ANGLE;
 
 char* strings[] = {CURRENT_TEXT_ANGLE, CURRENT_TEXT_SPEED,  CURRENT_TEXT_MASS};
+
+//switches
+bool POWER_ON = false;
+bool GROUND_SUPPORT_EQUIPMENT_DISCONNECT = false;
+bool FLIGHT_COMPUTER = false;
+bool MATH_ENGINE = false;
+bool RANGE_SAFETY_SYSTEM = false;
+bool PROPELLANT_TANK_PRESSURIZATION = false;
+bool IGNITION_SEQUENCE = false;
+bool LAUNCH_COMMIT = false;
+bool THRUST_VECTOR_CONTROL = false;
+bool TELEMETRY_SYSTEMS = false;
 
 /*==================BITMAPS==================*/
 
@@ -206,6 +224,7 @@ int main()
   
         // if(CURRENT_STATE < 5 || CURRENT_STATE > 1)
         getKeyBoardData(strings[CURRENT_STATE - 2], CURRENT_STATE);
+        getSwitchData();
         char mouse_pos[25];
         sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
         char current_state[25] = "                     ";
@@ -611,7 +630,9 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
             break;
         case IDLE:
             plotRocket(128, 150, angle, false);
+            //outline box for angle, speed, mass, etc
             plotBox(0, 75, 70, 63, WHITE, GRAY);
+            drawSwitches();
 
             plotString(2, 20, "Angle:");
             plotString(2, 22, CURRENT_TEXT_ANGLE);
@@ -624,9 +645,12 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
             plotString(2, 30, "Rocket Mass:");
             plotString(2, 32, CURRENT_TEXT_MASS);
             plotBox(8, 126, 50, 12, WHITE, (cursor_x > 8 && cursor_x < 58 && cursor_y > 126 && cursor_y < 138) ? RED : BLACK);
+
+            
             break;
         case CHANGE_ANGLE:
             plotRocket(128, 150, angle, false);
+            //outline box for angle, speed, mass, etc
             plotBox(0, 75, 70, 63, WHITE, GRAY);
 
             plotString(2, 20, "Angle:");
@@ -644,7 +668,9 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
             break;
         case CHANGE_SPEED:
             plotRocket(128, 150, angle, false);
-            plotBox(0, 75, 70, 148, WHITE, GRAY);
+            //outline box for angle, speed, mass, etc
+            plotBox(0, 75, 70, 63, WHITE, GRAY);
+ 
 
             plotString(2, 20, "Angle:");
             plotString(2, 22, CURRENT_TEXT_ANGLE);
@@ -660,7 +686,9 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
             break;
         case CHANGE_MASS:
             plotRocket(128, 150, angle, false);
-            plotBox(0, 75, 70, 148, WHITE, GRAY);
+            //outline box for angle, speed, mass, etc
+            plotBox(0, 75, 70, 63, WHITE, GRAY);
+   
 
             plotString(2, 20, "Angle:");
             plotString(2, 22, CURRENT_TEXT_ANGLE);
@@ -698,6 +726,126 @@ void drawCursor(int x, int y)
     //move x and y into previous frame
     previousFrame[0][0] = x; 
     previousFrame[0][1] = y; 
+}
+
+void drawSwitches()
+{
+     //outline box for switches
+    plotBox(60, 216, 200, 24, WHITE, GRAY);
+    //draw the 10 switches
+    
+    if(POWER_ON)
+    {
+        plotBox(64, 218, 12, 10, BLACK, LIGHT_GREEN);
+        plotBox(64, 228, 12, 10, BLACK, LIGHT_GRAY);
+    }
+    else
+    {
+        plotBox(64, 218, 12, 10, BLACK, LIGHT_GRAY);
+        plotBox(64, 228, 12, 10, BLACK, RED);
+
+    }
+
+    if(GROUND_SUPPORT_EQUIPMENT_DISCONNECT)
+    {
+        plotBox(84, 218, 12, 10, BLACK, LIGHT_GREEN);
+        plotBox(84, 228, 12, 10, BLACK, LIGHT_GRAY);
+    }
+    else
+    {
+        plotBox(84, 218, 12, 10, BLACK, LIGHT_GRAY);
+        plotBox(84, 228, 12, 10, BLACK, RED);
+    }
+
+    if(FLIGHT_COMPUTER)
+    {
+        plotBox(104, 218, 12, 10, BLACK, LIGHT_GREEN);
+        plotBox(104, 228, 12, 10, BLACK, LIGHT_GRAY);
+    }
+    else
+    {
+        plotBox(104, 218, 12, 10, BLACK, LIGHT_GRAY);
+        plotBox(104, 228, 12, 10, BLACK, RED);
+    }
+
+    if(MATH_ENGINE)
+    {
+        plotBox(124, 218, 12, 10, BLACK, LIGHT_GREEN);
+        plotBox(124, 228, 12, 10, BLACK, LIGHT_GRAY);
+    }
+    else
+    {
+        plotBox(124, 218, 12, 10, BLACK, LIGHT_GRAY);
+        plotBox(124, 228, 12, 10, BLACK, RED);
+    }
+    
+    if(RANGE_SAFETY_SYSTEM)
+    {
+        plotBox(144, 218, 12, 10, BLACK, LIGHT_GREEN);
+        plotBox(144, 228, 12, 10, BLACK, LIGHT_GRAY);
+    }
+    else
+    {
+        plotBox(144, 218, 12, 10, BLACK, LIGHT_GRAY);
+        plotBox(144, 228, 12, 10, BLACK, RED);
+    }
+
+    if(PROPELLANT_TANK_PRESSURIZATION)
+    {
+        plotBox(164, 218, 12, 10, BLACK, LIGHT_GREEN);
+        plotBox(164, 228, 12, 10, BLACK, LIGHT_GRAY);
+    }
+    else
+    {
+        plotBox(164, 218, 12, 10, BLACK, LIGHT_GRAY);
+        plotBox(164, 228, 12, 10, BLACK, RED);
+    }
+
+    if(IGNITION_SEQUENCE)
+    {
+        plotBox(184, 218, 12, 10, BLACK, LIGHT_GREEN);
+        plotBox(184, 228, 12, 10, BLACK, LIGHT_GRAY);
+    }
+    else
+    {
+        plotBox(184, 218, 12, 10, BLACK, LIGHT_GRAY);
+        plotBox(184, 228, 12, 10, BLACK, RED);
+    }
+
+    if(LAUNCH_COMMIT)
+    {
+        plotBox(204, 218, 12, 10, BLACK, LIGHT_GREEN);
+        plotBox(204, 228, 12, 10, BLACK, LIGHT_GRAY);
+    }
+    else
+    {
+        plotBox(204, 218, 12, 10, BLACK, LIGHT_GRAY);
+        plotBox(204, 228, 12, 10, BLACK, RED);
+    }
+
+    if(THRUST_VECTOR_CONTROL)
+    {
+        plotBox(224, 218, 12, 10, BLACK, LIGHT_GREEN);
+        plotBox(224, 228, 12, 10, BLACK, LIGHT_GRAY);
+    }
+    else
+    {
+        plotBox(224, 218, 12, 10, BLACK, LIGHT_GRAY);
+        plotBox(224, 228, 12, 10, BLACK, RED);
+    }
+
+    if(TELEMETRY_SYSTEMS)
+    {
+        plotBox(244, 218, 12, 10, BLACK, LIGHT_GREEN);
+        plotBox(244, 228, 12, 10, BLACK, LIGHT_GRAY);
+    }
+    else
+    {
+        plotBox(244, 218, 12, 10, BLACK, LIGHT_GRAY);
+        plotBox(244, 228, 12, 10, BLACK, RED);
+    }
+
+
 }
 
 void getKeyBoardData(char *CURRENT_TEXT, enum State CURRENT_STATE)
@@ -947,7 +1095,19 @@ void getKeyBoardData(char *CURRENT_TEXT, enum State CURRENT_STATE)
     
 }
 
-
+void getSwitchData()
+{
+    POWER_ON = switches->data & 0b0000000001;
+    GROUND_SUPPORT_EQUIPMENT_DISCONNECT = switches->data & 0b0000000010;
+    FLIGHT_COMPUTER = switches->data & 0b0000000100;
+    MATH_ENGINE = switches->data & 0b0000001000;
+    RANGE_SAFETY_SYSTEM = switches->data & 0b0000010000;
+    PROPELLANT_TANK_PRESSURIZATION = switches->data & 0b0000100000;
+    IGNITION_SEQUENCE = switches->data & 0b0001000000;
+    LAUNCH_COMMIT = switches->data & 0b0010000000;
+    THRUST_VECTOR_CONTROL = switches->data & 0b0100000000;
+    TELEMETRY_SYSTEMS = switches->data & 0b1000000000;
+}
 
 //function that takes in a char array and determines if there is more than 1 "." char or "-" char in the array
 bool checkStringValid(char *string)
