@@ -220,6 +220,7 @@ short int Buffer1[240][512];
 short int Buffer2[240][512];
 short int CurrentSceneDefault[512][240];
 int previousFrame[2][2];
+enum Planet CURRENT_PLANET;
 
 int main() 
 {
@@ -234,9 +235,9 @@ int main()
     PlanetStruct darsan = (PlanetStruct) { .name = "DARSAN", .mass_string = "x kg", .radius_string = "x km", .atmosphereic_height_string = "x km", .atmosphere_avg_density_string = "x kg/m^3" };
     PLANETS[DARSAN] = darsan;
 
-    enum Planet CURRENT_PLANET = MARS;
     enum State CURRENT_STATE = TITLE;
     enum State NEXT_STATE;
+    CURRENT_PLANET = MARS;
     //declare a char array of size 20 that is static and not dynamically alloacted
     //declare an instance of the VGA struct and initialize it
     //to the base address of the VGA
@@ -270,37 +271,37 @@ int main()
         switch (CURRENT_STATE)
         {
             case TITLE:
-                sprintf(current_state, "State: TITLE");
+                sprintf(current_state, "State: TITLE         ");
                 break;
             case IDLE:
-                sprintf(current_state, "State: IDLE");
+                sprintf(current_state, "State: IDLE           ");
                 break;
             case CHANGE_ANGLE:
-                sprintf(current_state, "State: CHANGE_ANGLE");
+                sprintf(current_state, "State: CHANGE_ANGLE ");
                 break;
             case CHANGE_SPEED:
-                sprintf(current_state, "State: CHANGE_SPEED");
+                sprintf(current_state, "State: CHANGE_SPEED ");
                 break;
             case CHANGE_MASS:
-                sprintf(current_state, "State: CHANGE_MASS");
+                sprintf(current_state, "State: CHANGE_MASS   ");
                 break;  
             case ROCKET_READY:
-                sprintf(current_state, "State: ROCKET_READY");
+                sprintf(current_state, "State: ROCKET_READY  ");
                 break;
             case CHANGE_PLANET:
-                sprintf(current_state, "State: CHANGE_PLANET");
+                sprintf(current_state, "State: CHANGE_PLANET   ");
                 break;
             case ROCKET_LAUNCH:
-                sprintf(current_state, "State: ROCKET_LAUNCH");
+                sprintf(current_state, "State: ROCKET_LAUNCH   ");
                 break;
             case ROCKET_CRASH:
-                sprintf(current_state, "State: ROCKET_CRASH");
+                sprintf(current_state, "State: ROCKET_CRASH    ");
                 break;
             case END:
-                sprintf(current_state, "State: END");
+                sprintf(current_state, "State: END             ");
                 break;
             default:
-                sprintf(current_state, "State: ERROR");
+                sprintf(current_state, "State: ERROR           ");
                 break;
         }
 
@@ -318,7 +319,7 @@ int main()
         pixel_buffer_start = vga->back_buffer;
         
         //set the current state to the next state
-        CURRENT_STATE = ControlPath(CURRENT_STATE, X_POSITION, Y_POSITION, MARS, vga);
+        CURRENT_STATE = ControlPath(CURRENT_STATE, X_POSITION, Y_POSITION, CURRENT_PLANET, vga);
     }
     //
     return 0;
@@ -475,6 +476,8 @@ void changeState(enum State next_state, enum Planet planet, VGA *vga)
     wait_for_v_sync(vga);
 
     clearCharacters(' ');
+
+    CURRENT_PLANET = planet;
 
     //read the curreNt scene 
     for (int x = 0; x < 320; x++)
