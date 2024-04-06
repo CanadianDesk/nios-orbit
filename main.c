@@ -223,6 +223,9 @@ void getKeyBoardData(char *CURRENT_TEXT, enum State CURRENT_STATE);
 void getSwitchData();
 //display planet fact panel
 void displayFactPanel(enum Planet planet);
+
+void playSoundsEffects();
+
 void drawLaunchButton();
 bool checkAngleValue(char* angle_string);
 
@@ -287,7 +290,7 @@ int main()
   
         // if(CURRENT_STATE < 5 || CURRENT_STATE > 1)
         #ifdef AUDIO
-        playSoundEffects();
+        playSoundEffects(CURRENT_STATE);
         #endif
         getKeyBoardData(strings[CURRENT_STATE - 2], CURRENT_STATE);
         getSwitchData();
@@ -1325,39 +1328,40 @@ bool checkStringValid(char *string, enum State CURRENT_STATE)
     return true;
 }
 #ifdef AUDIO
-void playSoundEffects()
+void playSoundEffects(enum State CURRENT_STATE)
 {
     //get the number of available words
     RIGHT_AVAILABLE = audiop->wsrc;
     //write that many words to the FIFO, and then increment the index accordingly
-    int start = WET_HANDS_INDEX;
+    int start = SOUNDS_INDEX_ARRAY[CURRENT_STATE];
     int end;
-    if(WET_HANDS_INDEX + RIGHT_AVAILABLE > 720352)
+    if(start + RIGHT_AVAILABLE > 720352)
     {
-        end = WET_HANDS_INDEX + RIGHT_AVAILABLE - 720352;
+        end = start + RIGHT_AVAILABLE - 720352;
         for(int i = start; i < 720352; i++)
         {
-            audiop->ldata = wethands[i];
-            audiop->rdata = wethands[i];
+            audiop->ldata = SOUNDS_ARRAY[CURRENT_STATE][i];
+            audiop->rdata = SOUNDS_ARRAY[CURRENT_STATE][i];
         }
         for(int i = 0; i < end; i++)
         {
-            audiop->ldata = wethands[i];
-            audiop->rdata = wethands[i];
+            audiop->ldata = SOUNDS_ARRAY[CURRENT_STATE][i];
+            audiop->rdata = SOUNDS_ARRAY[CURRENT_STATE][i];
         }
     }
     else
     {
-        end = WET_HANDS_INDEX + RIGHT_AVAILABLE;
+        end = SOUNDS_INDEX_ARRAY[CURRENT_STATE]; + RIGHT_AVAILABLE;
         for(int i = start; i < end; i++)
         {
-            audiop->ldata = wethands[i];
-            audiop->rdata = wethands[i];
+            audiop->ldata = SOUNDS_ARRAY[CURRENT_STATE][i];;
+            audiop->rdata = SOUNDS_ARRAY[CURRENT_STATE][i];;
         }
     }
-    WET_HANDS_INDEX = end;
+    SOUNDS_INDEX_ARRAY[CURRENT_STATE]; = end;
 }   
 #endif
+
 bool checkAngleValue(char* angle_string)
 {
     double num = atof(angle_string);
