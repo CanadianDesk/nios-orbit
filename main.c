@@ -175,6 +175,7 @@ void drawCursor(int x, int y);
 //gets the mouse data   
 void drawSwitches();
 
+bool checkStringValid(char* string, enum State CURRENT_STATE);
 
 //gets the keyboard data
 void getKeyBoardData(char *CURRENT_TEXT, enum State CURRENT_STATE);
@@ -341,17 +342,27 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
             //if the user presses enter while typing, it will take them out of the state and put them into the start state
             if(ENTER_PRESSED)
             {
-                NEXT_STATE = IDLE;
-                changeState(IDLE, planet, vga);
+                //make sure the user entered a valid string
+                if(checkStringValid(CURRENT_TEXT_ANGLE, CHANGE_ANGLE))
+                {
+                    NEXT_STATE = IDLE;
+                    changeState(IDLE, planet, vga);
+                    
+                }
                 ENTER_PRESSED = false;
             }
             break;
 
         case CHANGE_SPEED:
             //if the user presses enter while typing, it will take them out of the state and put them into the start state
-            if(ENTER_PRESSED){
-                NEXT_STATE = IDLE;
-                changeState(IDLE, planet, vga);
+            if(ENTER_PRESSED)
+            {
+                if(checkStringValid(CURRENT_TEXT_SPEED, CHANGE_SPEED))
+                {
+                    NEXT_STATE = IDLE;
+                    changeState(IDLE, planet, vga);
+                    
+                }
                 ENTER_PRESSED = false;
             }
             break;
@@ -360,8 +371,11 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
                 //if the user presses enter while typing, it will take them out of the state and put them into the start state
             if(ENTER_PRESSED)
             {
-                NEXT_STATE = IDLE;
-                changeState(IDLE, planet, vga);
+                if(checkStringValid(CURRENT_TEXT_MASS, CHANGE_MASS))
+                {
+                    NEXT_STATE = IDLE;
+                    changeState(IDLE, planet, vga);
+                }
                 ENTER_PRESSED = false;
             }
             break;
@@ -1005,15 +1019,7 @@ void getKeyBoardData(char *CURRENT_TEXT, enum State CURRENT_STATE)
                 
                 
                 break;
-            case 0x4E: // minues sign ' - ' pressed
-                if(CURRENT_TEXT_IDX >= 9)
-                    break;
-                if(READY_TO_READ)
-                {
-                    READY_TO_READ = false;
-                    CURRENT_TEXT[CURRENT_TEXT_IDX] = '-';
-                    (CURRENT_TEXT_IDX)++;
-                }
+  
                 
                 break;
             case 0x66: // backspace pressed
@@ -1113,9 +1119,8 @@ void getSwitchData()
 }
 
 //function that takes in a char array and determines if there is more than 1 "." char or "-" char in the array
-bool checkStringValid(char *string)
+bool checkStringValid(char *string, enum State CURRENT_STATE)
 {
-    int minus_count = 0;
     int period_count = 0;
     int index = 0;
     while(1)
@@ -1132,17 +1137,9 @@ bool checkStringValid(char *string)
         {
             period_count++;
         }
-        if(string[index] == '-')
-        {
-            minus_count++;
-        }
         index++;
     }
-    if(minus_count > 1 || period_count > 1)
-    {
-        return false;
-    }
-    if(minus_count == 1 && string[0] != '-')
+    if(period_count > 1)
     {
         return false;
     }
