@@ -81,14 +81,16 @@ int Y_POSITION = 120;
 int NEW_X_POSITION= 160;
 int NEW_Y_POSITION = 120;
 
-int CURRENT_TEXT_IDX = 0;
+int ANGLE_IDX = 0;
+int SPEED_IDX = 0;
+int MASS_IDX = 0;
 
 struct PS2 *const keyboard = ((struct PS2 *) PS2_BASE);
 struct PS2 *const mouse = ((struct PS2 *) PS2_DUAL_BASE);
 
-char CURRENT_TEXT_MASS[10] = "          "; 
-char CURRENT_TEXT_SPEED[10] = "          "; 
-char CURRENT_TEXT_ANGLE[10] = "          "; 
+char CURRENT_TEXT_MASS[10] = ""; 
+char CURRENT_TEXT_SPEED[10] = ""; 
+char CURRENT_TEXT_ANGLE[10] = ""; 
 
 double CURRENT_DOUBLE_ANGLE;
 
@@ -154,7 +156,7 @@ void drawCursor(int x, int y);
 //gets the mouse data   
 
 //gets the keyboard data
-void getKeyBoardData(char *CURRENT_TEXT);
+void getKeyBoardData(char *CURRENT_TEXT, enum State CURRENT_STATE);
 //init mouse
 
 //mouse erasign
@@ -202,8 +204,8 @@ int main()
         //getMouseData();
   
         // if(CURRENT_STATE < 5 || CURRENT_STATE > 1)
-        getKeyBoardData(strings[CURRENT_STATE - 2]);
-        
+        getKeyBoardData(strings[CURRENT_STATE - 2], CURRENT_STATE);
+        printf("current angle: %s \n", CURRENT_TEXT_ANGLE);
         char mouse_pos[25];
         sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
         char current_state[25] = "                     ";
@@ -638,6 +640,8 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
             plotString(2, 30, "Rocket Mass:");
             plotString(2, 32, CURRENT_TEXT_MASS);
             plotBox(8, 126, 50, 12, WHITE, BLACK);
+
+            printf("Current text angle: %d\n", CURRENT_TEXT_ANGLE);
             break;
         case CHANGE_SPEED:
             plotRocket(128, 150, angle, false);
@@ -697,8 +701,23 @@ void drawCursor(int x, int y)
     previousFrame[0][1] = y; 
 }
 
-void getKeyBoardData(char *CURRENT_TEXT)
+void getKeyBoardData(char *CURRENT_TEXT, enum State CURRENT_STATE)
 {
+    int CURRENT_TEXT_IDX;
+    if(CURRENT_STATE == CHANGE_ANGLE)
+    {
+        CURRENT_TEXT_IDX = ANGLE_IDX;
+    }
+    if(CURRENT_STATE == CHANGE_SPEED)
+    {
+        CURRENT_TEXT_IDX = SPEED_IDX;
+    }
+    if(CURRENT_STATE == CHANGE_MASS)
+    {
+        CURRENT_TEXT_IDX = MASS_IDX;
+    }
+    
+
     int read_valid = keyboard->RVALID & 0b10000000;
     if(read_valid)
     {
@@ -720,8 +739,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 {
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '1';
-                    CURRENT_TEXT_IDX++;
-                    // printf("%s\n", CURRENT_TEXT);
+                    (CURRENT_TEXT_IDX)++;
                 }
                 
                 break;
@@ -732,8 +750,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 {
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '2';
-                    CURRENT_TEXT_IDX++;
-                    // printf("%s\n", CURRENT_TEXT);
+                    (CURRENT_TEXT_IDX)++;
                 }
                 
                 break;
@@ -744,8 +761,8 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 {
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '3';
-                    CURRENT_TEXT_IDX++;
-                    // printf("%s\n", CURRENT_TEXT);
+                    (CURRENT_TEXT_IDX)++;
+                    
                 }
                 
                 break;
@@ -756,7 +773,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 {
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '4';
-                    CURRENT_TEXT_IDX++;
+                    (CURRENT_TEXT_IDX)++;
                     // printf("%s\n", CURRENT_TEXT);
                 }
                 
@@ -768,7 +785,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 {
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '5';
-                    CURRENT_TEXT_IDX++;
+                    (CURRENT_TEXT_IDX)++;
                     // printf("%s\n", CURRENT_TEXT);
                 }
                 
@@ -780,7 +797,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 {
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '6';
-                    CURRENT_TEXT_IDX++;
+                    (CURRENT_TEXT_IDX)++;
                     // printf("%s\n", CURRENT_TEXT);
                 }
                 
@@ -793,7 +810,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 {
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '7';
-                    CURRENT_TEXT_IDX++;
+                    (CURRENT_TEXT_IDX)++;
                     // printf("%s\n", CURRENT_TEXT);
                 }
                 break;
@@ -804,7 +821,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 {
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '8';
-                    CURRENT_TEXT_IDX++;
+                    (CURRENT_TEXT_IDX)++;
                     // printf("%s\n", CURRENT_TEXT);
                 }
                 
@@ -817,7 +834,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 {
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '9';
-                    CURRENT_TEXT_IDX++;
+                    (CURRENT_TEXT_IDX)++;
                     // printf("%s\n", CURRENT_TEXT);
                 }
             
@@ -828,7 +845,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 {
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '0';
-                    CURRENT_TEXT_IDX++;
+                    (CURRENT_TEXT_IDX)++;
                     // printf("%s\n", CURRENT_TEXT);
                 }
                 
@@ -841,7 +858,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 {
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '.';
-                    CURRENT_TEXT_IDX++;
+                    (CURRENT_TEXT_IDX)++;
                     // printf("%s\n", CURRENT_TEXT);
                 }
                 
@@ -854,7 +871,7 @@ void getKeyBoardData(char *CURRENT_TEXT)
                 {
                     READY_TO_READ = false;
                     CURRENT_TEXT[CURRENT_TEXT_IDX] = '-';
-                    CURRENT_TEXT_IDX++;
+                    (CURRENT_TEXT_IDX)++;
                     // printf("%s\n", CURRENT_TEXT);
                 }
                 
@@ -926,6 +943,20 @@ void getKeyBoardData(char *CURRENT_TEXT)
     }
     
     *RLEDs = BYTE2;
+
+    if(CURRENT_STATE == CHANGE_ANGLE)
+    {
+        ANGLE_IDX = CURRENT_TEXT_IDX ;
+    }
+    if(CURRENT_STATE == CHANGE_SPEED)
+    {
+        SPEED_IDX = CURRENT_TEXT_IDX;
+    }
+    if(CURRENT_STATE == CHANGE_MASS)
+    {
+        MASS_IDX = CURRENT_TEXT_IDX;
+    }
+    
 }
 
 
