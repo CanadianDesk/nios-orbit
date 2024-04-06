@@ -224,7 +224,7 @@ void getSwitchData();
 //display planet fact panel
 void displayFactPanel(enum Planet planet);
 
-void playSoundsEffects();
+void playSoundEffects(enum State CURRENT_STATE);
 
 void drawLaunchButton();
 bool checkAngleValue(char* angle_string);
@@ -251,6 +251,24 @@ double ROCKET_START_ANGLE;
 
 int main() 
 {
+    #ifdef AUDIO
+    //initialize sound indices
+    int SOUNDS_INDEX_ARRAY[11];
+    SOUNDS_INDEX_ARRAY[TITLE] = WET_HANDS_INDEX;
+    SOUNDS_INDEX_ARRAY[IDLE] = WET_HANDS_INDEX;
+    SOUNDS_INDEX_ARRAY[CHANGE_ANGLE] = WET_HANDS_INDEX;
+    SOUNDS_INDEX_ARRAY[CHANGE_SPEED] = WET_HANDS_INDEX;
+    SOUNDS_INDEX_ARRAY[CHANGE_MASS] = WET_HANDS_INDEX;
+    SOUNDS_INDEX_ARRAY[CHANGE_PLANET] = WET_HANDS_INDEX;
+    SOUNDS_INDEX_ARRAY[ROCKET_READY] = COUNTDOWN_INDEX;
+    SOUNDS_INDEX_ARRAY[ROCKET_LAUNCH] = WET_HANDS_INDEX;
+    SOUNDS_INDEX_ARRAY[ROCKET_PATH] = WET_HANDS_INDEX;
+    SOUNDS_INDEX_ARRAY[ROCKET_CRASH] = METAL_PIPE_INDEX;
+    SOUNDS_INDEX_ARRAY[END] = ARCADIA_INDEX;
+    #endif
+
+
+
 
     //initialie PLANETS array
     PlanetStruct moon = (PlanetStruct) { .name = "MOON", .mass_string = "7.342 x 10^22 kg", .radius_string = "1,737.5 km", .atmosphereic_height_string = "0 km", .atmosphere_avg_density_string = "0 kg/m^3" };
@@ -406,6 +424,7 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
                 //if the x y position are where the launch button is
                 if (cursor_x > 0 && cursor_x < 70 && cursor_y > 146 && cursor_y < 176)
                 {
+                    NEXT_STATE = ROCKET_READY;  
                     changeState(ROCKET_READY, planet, vga);
                 }
             }
@@ -1367,7 +1386,7 @@ void playSoundEffects(enum State CURRENT_STATE)
             audiop->rdata = SOUNDS_ARRAY[CURRENT_STATE][i];;
         }
     }
-    SOUNDS_INDEX_ARRAY[CURRENT_STATE]; = end;
+    SOUNDS_INDEX_ARRAY[CURRENT_STATE] = end;
 }   
 #endif
 
