@@ -226,7 +226,7 @@ void getSwitchData();
 //display planet fact panel
 void displayFactPanel(enum Planet planet);
 
-void playSoundEffects();
+void playSoundEffects(enum State CURRENT_STATE);
 
 void rocketLaunchAnimation(enum State CURRENT_STATE);
 
@@ -293,14 +293,14 @@ int main()
   
         // if(CURRENT_STATE < 5 || CURRENT_STATE > 1)
         #ifdef AUDIO
-        playSoundEffects();
+        playSoundEffects(CURRENT_STATE);
         #endif
         getKeyBoardData(strings[CURRENT_STATE - 2], CURRENT_STATE);
         getSwitchData();
         if(CURRENT_STATE == ROCKET_LAUNCH)
         {
             rocketLaunchAnimation(ROCKET_LAUNCH);
-            ANIMATION_ROCKET_HEIGHT += 4;
+            
         }
         char mouse_pos[25];
         sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
@@ -483,8 +483,15 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
                 ENTER_PRESSED = false;
                 changeState(IDLE, new_planet, vga);
             }
-        break;
-        // case ROCKET_READY:
+            break;
+        case ROCKET_READY:
+            if(COUNTDOWN_INDEX == 28212)
+            {
+                NEXT_STATE = ROCKET_LAUNCH;
+                changeState(ROCKET_LAUNCH, planet, vga);
+
+            }
+            break;
         //     //when the user clicks the launch button, the checkStringValid function will run on all 3 of the strings to check if 
         //     //the user has typed something forbidden
         //     if(checkStringValid[CURRENT_TEXT_MASS] && checkStringValid[CURRENT_TEXT_ANGLE] && checkStringValid[CURRENT_TEXT_VELOCITY] && CURRENT_STATE == LAUNCH)
@@ -1377,33 +1384,62 @@ bool checkStringValid(char *string, enum State CURRENT_STATE)
     return true;
 }
 #ifdef AUDIO
-void playSoundEffects()
+void playSoundEffects(enum State CURRENT_STATE)
 {
     //get the number of available words
     RIGHT_AVAILABLE = audiop->wsrc;
     //write that many words to the FIFO, and then increment the index accordingly
-    int start = WET_HANDS_INDEX;
-    int end;
-    if(WET_HANDS_INDEX + RIGHT_AVAILABLE > 720352)
+    if(CURRENT_STATE == TITLE || CURRENT_STATE == IDLE || CURRENT_STATE == CHANGE_ANGLE || CURRENT_STATE == CHANGE_SPEED || CURRENT_STATE == CHANGE_MASS || CURRENT_STATE == CHANGE_PLANET)
     {
-        end = WET_HANDS_INDEX + RIGHT_AVAILABLE - 720352;
-        for(int i = start; i < 720352; i++)
+        int start = WET_HANDS_INDEX;
+        int end;
+        if(WET_HANDS_INDEX + RIGHT_AVAILABLE > 720352)
         {
-            audiop->ldata = wethands[i];
-            audiop->rdata = wethands[i];
+            end = WET_HANDS_INDEX + RIGHT_AVAILABLE - 720352;
+            for(int i = start; i < 720352; i++)
+            {
+                audiop->ldata = wethands[i];
+                audiop->rdata = wethands[i];
 
+            }
         }
-    }
-    else
-    {
-        end = WET_HANDS_INDEX + RIGHT_AVAILABLE;
-        for(int i = start; i < end; i++)
+        else
         {
-            audiop->ldata = wethands[i];
-            audiop->rdata = wethands[i];
+            end = WET_HANDS_INDEX + RIGHT_AVAILABLE;
+            for(int i = start; i < end; i++)
+            {
+                audiop->ldata = wethands[i];
+                audiop->rdata = wethands[i];
+            }
         }
+        WET_HANDS_INDEX = end;
     }
-    WET_HANDS_INDEX = end;
+    if(CURRENT_STATE == ROCKET_READY)
+    {
+        int start = COUNTDOWN_INDEX;
+        int end;
+        if(COUNTDOWN_INDEX + RIGHT_AVAILABLE > 28212)
+        {
+            end = 28212;
+            for(int i = start; i < end; i++)
+            {
+                audiop->ldata = countdown[i];
+                audiop->rdata = countdown[i];
+
+            }
+        }
+        else
+        {
+            end = COUNTDOWN_INDEX + RIGHT_AVAILABLE;
+            for(int i = start; i < end; i++)
+            {
+                audiop->ldata = countdown[i];
+                audiop->rdata = countdown[i];
+            }
+        }
+        COUNTDOWN_INDEX = end;
+    }
+
 }   
 #endif
 
@@ -1420,5 +1456,38 @@ bool checkAngleValue(char* angle_string)
 void rocketLaunchAnimation(enum State CURRENT_STATE)
 {
     plotBackground(CURRENT_STATE, CURRENT_PLANET);
-    plotRocket(128, ANIMATION_ROCKET_HEIGHT, 0, true);
+    plotRocket(128, ANIMATION_ROCKET_HEIGHT, 0, false);
+    if(ANIMATION_ROCKET_HEIGHT > 120)
+    {
+        ANIMATION_ROCKET_HEIGHT -= 1;
+    }
+    else if(ANIMATION_ROCKET_HEIGHT > 90)
+    {
+        ANIMATION_ROCKET_HEIGHT -= 2;
+    }
+    else if(ANIMATION_ROCKET_HEIGHT > 60)
+    {
+        ANIMATION_ROCKET_HEIGHT -= 3;
+    }
+    else if(ANIMATION_ROCKET_HEIGHT > 30)
+    {
+        ANIMATION_ROCKET_HEIGHT -= 4;
+    }
+    else if(ANIMATION_ROCKET_HEIGHT > 0)
+    {
+        ANIMATION_ROCKET_HEIGHT -= 5;
+    }
+    else if(ANIMATION_ROCKET_HEIGHT > -30)
+    {
+        ANIMATION_ROCKET_HEIGHT -= 6;
+    }
+    else if(ANIMATION_ROCKET_HEIGHT > -60)
+    {
+        ANIMATION_ROCKET_HEIGHT -= 7;
+    }
+    else if(ANIMATION_ROCKET_HEIGHT > -90)
+    {
+        ANIMATION_ROCKET_HEIGHT -= 8;
+    }
+
 }
