@@ -1449,9 +1449,9 @@ void playSoundEffects(enum State CURRENT_STATE)
     {
         int start = LAUNCH_INDEX;
         int end;
-        if(LAUNCH_INDEX + RIGHT_AVAILABLE > 96335)
+        if(LAUNCH_INDEX + RIGHT_AVAILABLE > 88896)
         {
-            end = 96335;
+            end = 88896;
             for(int i = start; i < end; i++)
             {
                 audiop->ldata = launch[i];
