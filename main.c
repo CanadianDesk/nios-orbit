@@ -103,11 +103,6 @@ bool PATH_ROCKET_CRASHED = false;
 bool PATH_ROCKET_SUCCESS = false;
 PlanetStruct PLANETS[4];
 
-bool LEFT_MOUSE_CLICK;
-bool RIGHT_MOUSE_CLICK;
-int X_SIGN_BIT;
-int Y_SIGN_BIT;
-
 bool ENTER_PRESSED = false;
 
 bool READY_TO_READ;
@@ -116,8 +111,6 @@ int BYTE0 = 0;
 int BYTE1 = 0;
 int BYTE2 = 0;
 
-int current_byte = 0;
-
 //half of 640 x 320
 int X_POSITION= 160;
 int Y_POSITION = 120;
@@ -125,9 +118,9 @@ int Y_POSITION = 120;
 int NEW_X_POSITION= 160;
 int NEW_Y_POSITION = 120;
 
-int ANGLE_IDX = 0;
-int SPEED_IDX = 0;
-int MASS_IDX = 0;
+int ANGLE_IDX = 1;
+int SPEED_IDX = 3;
+int MASS_IDX = 3;
 
 int ANIMATION_ROCKET_HEIGHT = 150;
 
@@ -256,6 +249,8 @@ void changeState(enum State next_state, enum Planet planet, VGA *vga);
 enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enum Planet planet, VGA *vga);
 
 void displayEditPanel(enum State state, int cursor_x, int cursor_y);
+
+void reset();
 
 /*==================GLOBALS==================*/
 //using 320 x 240 vga resolution
@@ -581,6 +576,7 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
             {
                 NEXT_STATE = IDLE;
                 ENTER_PRESSED = false;
+                reset();
             }
             break;
         case END:
@@ -588,6 +584,7 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
             {
                 NEXT_STATE = IDLE;
                 ENTER_PRESSED = false;
+                reset();
             }
             break;
         default:
@@ -1780,5 +1777,25 @@ void rocketLaunchAnimation(enum State CURRENT_STATE)
     {
         ANIMATION_ROCKET_HEIGHT -= 8;
     }
+
+}
+
+void reset()
+{
+    PATH_ROCKET_CRASHED = false;
+    PATH_ROCKET_SUCCESS = false;
+    ENTER_PRESSED = false;
+    ANGLE_IDX = 1;
+    SPEED_IDX = 3;
+    MASS_IDX = 3;
+    ANIMATION_ROCKET_HEIGHT = 150;
+
+    #ifdef AUDIO
+    METAL_PIPE_INDEX = 0;
+    COUNTDOWN_INDEX = 0;
+    LAUNCH_INDEX = 0;
+    #endif
+
+    PATH_ANIMATION_INDEX = 0;
 
 }
