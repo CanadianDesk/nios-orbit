@@ -485,12 +485,18 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
             }
             break;
         case ROCKET_READY:
+            #ifdef AUDIO
             if(COUNTDOWN_INDEX == 28212)
             {
                 NEXT_STATE = ROCKET_LAUNCH;
                 changeState(ROCKET_LAUNCH, planet, vga);
 
             }
+            #endif
+            #ifndef AUDIO
+            NEXT_STATE = ROCKET_LAUNCH;
+            changeState(ROCKET_LAUNCH, planet, vga);
+            #endif
             break;
         //     //when the user clicks the launch button, the checkStringValid function will run on all 3 of the strings to check if 
         //     //the user has typed something forbidden
