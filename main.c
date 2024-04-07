@@ -125,6 +125,8 @@ int ANGLE_IDX = 0;
 int SPEED_IDX = 0;
 int MASS_IDX = 0;
 
+int ANIMATION_ROCKET_HEIGHT = 150;
+
 struct PS2 *const keyboard = ((struct PS2 *) PS2_BASE);
 struct PS2 *const mouse = ((struct PS2 *) PS2_DUAL_BASE);
 struct Switches *const switches = ((struct Switches *) SWITCH_BASE);
@@ -253,7 +255,6 @@ int main()
 {
     #ifdef AUDIO
     //initialize sound indices
-    int SOUNDS_INDEX_ARRAY[11];
     SOUNDS_INDEX_ARRAY[TITLE] = WET_HANDS_INDEX;
     SOUNDS_INDEX_ARRAY[IDLE] = WET_HANDS_INDEX;
     SOUNDS_INDEX_ARRAY[CHANGE_ANGLE] = WET_HANDS_INDEX;
@@ -312,6 +313,11 @@ int main()
         #endif
         getKeyBoardData(strings[CURRENT_STATE - 2], CURRENT_STATE);
         getSwitchData();
+        if(CURRENT_STATE == ROCKET_LAUNCH)
+        {
+            rocketLaunchAnimation(ROCKET_LAUNCH);
+            ANIMATION_ROCKET_HEIGHT += 4;
+        }
         char mouse_pos[25];
         sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
         char current_state[25] = "";
@@ -506,7 +512,14 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
         //         NEXT_STATE = ROCKET_CRASH;
         //     }
 
-        // case ROCKET_LAUNCH:
+        case ROCKET_LAUNCH:
+        {
+            if(ANIMATION_ROCKET_HEIGHT <= -50)
+            {
+                NEXT_STATE = ROCKET_PATH;
+            }
+            
+        }
 
         // case ROCKET_CRASH:
 
@@ -1385,6 +1398,7 @@ void playSoundEffects(enum State CURRENT_STATE)
     //get the number of available words
     RIGHT_AVAILABLE = audiop->wsrc;
     //write that many words to the FIFO, and then increment the index accordingly
+    //read from the global variables
     int start = SOUNDS_INDEX_ARRAY[CURRENT_STATE];
     int end;
     if(start + RIGHT_AVAILABLE > 720352)
@@ -1403,14 +1417,24 @@ void playSoundEffects(enum State CURRENT_STATE)
     }
     else
     {
-        end = SOUNDS_INDEX_ARRAY[CURRENT_STATE]; + RIGHT_AVAILABLE;
+        end = SOUNDS_INDEX_ARRAY[CURRENT_STATE] + RIGHT_AVAILABLE;
         for(int i = start; i < end; i++)
         {
             audiop->ldata = SOUNDS_ARRAY[CURRENT_STATE][i];;
             audiop->rdata = SOUNDS_ARRAY[CURRENT_STATE][i];;
         }
     }
-    SOUNDS_INDEX_ARRAY[CURRENT_STATE] = end;
+    //write back to the global variable index
+    if(CURRENT_STATE == TITLE || CURRENT_STATE == IDLE || CURRENT_STATE == CHANGE_ANGLE || CURRENT_STATE == CHANGE_SPEED || CURRENT_STATE == CHANGE_MASS || CURRENT_STATE == CHANGE_PLANET)
+    {
+        WET_HANDS_INDEX = end;
+    }
+    if(CURRENT_STATE == ROCKET_READY)
+    {
+        COUNTDOWN_INDEX = end;
+    }
+
+
 }   
 #endif
 
@@ -1422,4 +1446,10 @@ bool checkAngleValue(char* angle_string)
         return false;
     }
     return true;
+}
+
+void rocketLaunchAnimation(enum State CURRENT_STATE)
+{
+    plotBackground(CURRENT_STATE, CURRENT_PLANET);
+    plotRocket(128, ANIMATION_ROCKET_HEIGHT, 0, true);
 }
