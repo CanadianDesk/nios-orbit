@@ -1395,7 +1395,31 @@ void playSoundEffects(enum State CURRENT_STATE)
     //get the number of available words
     RIGHT_AVAILABLE = audiop->wsrc;
     //write that many words to the FIFO, and then increment the index accordingly
-    if(CURRENT_STATE == TITLE || CURRENT_STATE == IDLE || CURRENT_STATE == CHANGE_ANGLE || CURRENT_STATE == CHANGE_SPEED || CURRENT_STATE == CHANGE_MASS || CURRENT_STATE == CHANGE_PLANET)
+    if(CURRENT_STATE == TITLE)
+    {
+        int start = TITLE_INDEX;
+        int end;
+        if(TITLE_INDEX + RIGHT_AVAILABLE > 284212)
+        {
+            end = TITLE_INDEX + RIGHT_AVAILABLE - 284212;
+            for(int i = start; i < 284212; i++)
+            {
+                audiop->ldata = title[i];
+                audiop->rdata = title[i];
+            }
+        }
+        else
+        {
+            end = TITLE_INDEX + RIGHT_AVAILABLE;
+            for(int i = start; i < end; i++)
+            {
+                audiop->ldata = title[i];
+                audiop->rdata = title[i];
+            }
+        }
+        TITLE_INDEX = end;
+    }
+    if(CURRENT_STATE == IDLE || CURRENT_STATE == CHANGE_ANGLE || CURRENT_STATE == CHANGE_SPEED || CURRENT_STATE == CHANGE_MASS || CURRENT_STATE == CHANGE_PLANET)
     {
         int start = WET_HANDS_INDEX;
         int end;
@@ -1470,6 +1494,32 @@ void playSoundEffects(enum State CURRENT_STATE)
         }
         LAUNCH_INDEX = end;
     }
+    if(CURRENT_STATE == ROCKET_PATH)
+    {
+        int start = ROCKET_PATH_INDEX;
+        int end;
+        if(ROCKET_PATH_INDEX + RIGHT_AVAILABLE > 631118)
+        {
+            end = WET_HANDS_INDEX + RIGHT_AVAILABLE - 631118;
+            for(int i = start; i < 631118; i++)
+            {
+                audiop->ldata = path[i];
+                audiop->rdata = path[i];
+            }
+        }
+        else
+        {
+            end = ROCKET_PATH_INDEX + RIGHT_AVAILABLE;
+            for(int i = start; i < end; i++)
+            {
+                audiop->ldata = path[i];
+                audiop->rdata = path[i];
+            }
+        }
+        ROCKET_PATH_INDEX = end;
+    }
+
+
 
 
 }   
