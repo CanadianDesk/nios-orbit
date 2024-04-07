@@ -650,23 +650,27 @@ void plotBox(int x, int y, int width, int height, short int outline_color, short
 
 void plotCircle(int x, int y, int radius, short int outline_color, short int fill_color)
 {
-    //loop through the width and height of the square created by the radius of the box, plot pixel if the x and y distance is less than the radius 
-    for(int i = x - radius; i < x + radius; i++)
+    for(double angle = 0; angle <= 360; angle++)
     {
-        for(int j = y - radius; j < y + radius; j++)
-        {
-            float distance = sqrt((i - x) * (i - x) + (j - y) * (j - y));
-            if(distance - radius < 0.5 && distance - radius > -0.5)
-            {
-                plotPixel(i, j, outline_color);
-            }
-            else if(distance < radius)
-            {
-                plotPixel(i, j, fill_color);
-            }
-  
-        }
+        plotPixel(cos(angle/(2 * M_PI)) * radius, sin(angle/(2 * M_PI)) * radius, outline_color);
     }
+    //loop through the width and height of the square created by the radius of the box, plot pixel if the x and y distance is less than the radius 
+    // for(int i = x - radius; i < x + radius; i++)
+    // {
+    //     for(int j = y - radius; j < y + radius; j++)
+    //     {
+    //         float distance = sqrt((i - x) * (i - x) + (j - y) * (j - y));
+    //         if(distance - radius < 0.5 && distance - radius > -0.5)
+    //         {
+    //             plotPixel(i, j, outline_color);
+    //         }
+    //         else if(distance < radius)
+    //         {
+    //             plotPixel(i, j, fill_color);
+    //         }
+  
+    //     }
+    // }
 }
 
 void plotLine(int x1, int x2, int y1, int y2, short color)
