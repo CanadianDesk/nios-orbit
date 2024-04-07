@@ -243,6 +243,8 @@ void playSoundEffects(enum State CURRENT_STATE);
 
 void rocketLaunchAnimation(enum State CURRENT_STATE);
 
+void drawPath(enum Planet planet, double start_angle, int animation_index);
+
 void drawLaunchButton();
 bool checkAngleValue(char* angle_string);
 
