@@ -305,10 +305,7 @@ int main()
             rocketLaunchAnimation(ROCKET_LAUNCH);
             
         }
-        if(CURRENT_STATE == ROCKET_PATH)
-        {
-            printf("avinav");
-        }
+
         char mouse_pos[25];
         sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
         char current_state[25] = "";
@@ -519,13 +516,34 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
         //     }
 
         case ROCKET_LAUNCH:
-        {
+        
             if(ANIMATION_ROCKET_HEIGHT <= -50)
             {
                 NEXT_STATE = ROCKET_PATH;
                 changeState(ROCKET_PATH, planet, vga);
             }  
-        }
+            break;
+        // case ROCKET_PATH:
+        
+        //     //if the rocket makes it past orbit
+        //     NEXT_STATE = END;
+        //     //if the rocket does not make it past orbit
+        //     NEXT_STATE = ROCKET_CRASH
+        //     break;
+        case ROCKET_CRASH:
+            if(ENTER_PRESSED)
+            {
+                NEXT_STATE = IDLE;
+                ENTER_PRESSED = false;
+            }
+            break;
+        case END:
+            if(ENTER_PRESSED)
+            {
+                NEXT_STATE = IDLE;
+                ENTER_PRESSED = false;
+            }
+            break;
 
         // case ROCKET_CRASH:
 
