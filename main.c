@@ -202,6 +202,9 @@ void plotLetter(int x, int y, char letter);
 void plotString(int x, int y, char *string);
 //plots a box at the x, y coordinate with the width, height, outline color, and fill color
 void plotBox(int x, int y, int width, int height, short int outline_color, short int fill_color);
+
+//plots a box at the x, y coordinate with the width, height, outline color, and fill color
+void plotCircle(int x, int y, int radius, short int outline_color, short int fill_color);
 //plot background
 void plotBackground(enum State state, enum Planet planet);
 //clears the screen with the color
@@ -301,6 +304,10 @@ int main()
         {
             rocketLaunchAnimation(ROCKET_LAUNCH);
             
+        }
+        if(CURRENT_STATE == ROCKET_PATH)
+        {
+            printf("avinav");
         }
         char mouse_pos[25];
         sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
@@ -498,6 +505,8 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
             changeState(ROCKET_LAUNCH, planet, vga);
             #endif
             break;
+   
+
         //     //when the user clicks the launch button, the checkStringValid function will run on all 3 of the strings to check if 
         //     //the user has typed something forbidden
         //     if(checkStringValid[CURRENT_TEXT_MASS] && checkStringValid[CURRENT_TEXT_ANGLE] && checkStringValid[CURRENT_TEXT_VELOCITY] && CURRENT_STATE == LAUNCH)
@@ -514,8 +523,8 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
             if(ANIMATION_ROCKET_HEIGHT <= -50)
             {
                 NEXT_STATE = ROCKET_PATH;
-            }
-            
+                changeState(ROCKET_PATH, planet, vga);
+            }  
         }
 
         // case ROCKET_CRASH:
@@ -617,6 +626,27 @@ void plotBox(int x, int y, int width, int height, short int outline_color, short
             {
                 plotPixel(x + i, y + j, fill_color);
             }
+        }
+    }
+}
+
+void plotCircle(int x, int y, int radius, short int outline_color, short int fill_color)
+{
+    //loop through the width and height of the square created by the radius of the box, plot pixel if the x and y distance is less than the radius 
+    for(int i = x - radius; i < x + radius; i++)
+    {
+        for(int j = y - radius; j < y + radius; j++)
+        {
+            float distance = sqrt((i - x) * (i - x) + (j - y) * (j - y));
+            if(distance - radius < 0.5 && distance - radius > -0.5)
+            {
+                plotPixel(i, j, outline_color);
+            }
+            else if(distance < radius)
+            {
+                plotPixel(i, j, fill_color);
+            }
+  
         }
     }
 }
@@ -789,6 +819,7 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
             break;
         case IDLE:
             //planet box:
+            
             plotBox(280, 0, 40, 12, WHITE, cursor_x > 280 && cursor_x < 320 && cursor_y > 0 && cursor_y < 12 ? RED : BLACK);
             plotString(71, 1, planet_string);
 
@@ -803,6 +834,8 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
 
             //launch button:
             drawLaunchButton(cursor_x, cursor_y);
+
+            //plotCircle(160, 50, 20, BLACK, RED);
             break;
         case CHANGE_ANGLE:
             //planet box:
@@ -1395,31 +1428,8 @@ void playSoundEffects(enum State CURRENT_STATE)
     //get the number of available words
     RIGHT_AVAILABLE = audiop->wsrc;
     //write that many words to the FIFO, and then increment the index accordingly
-    if(CURRENT_STATE == TITLE)
-    {
-        int start = TITLE_INDEX;
-        int end;
-        if(TITLE_INDEX + RIGHT_AVAILABLE > 284212)
-        {
-            end = TITLE_INDEX + RIGHT_AVAILABLE - 284212;
-            for(int i = start; i < 284212; i++)
-            {
-                audiop->ldata = title[i];
-                audiop->rdata = title[i];
-            }
-        }
-        else
-        {
-            end = TITLE_INDEX + RIGHT_AVAILABLE;
-            for(int i = start; i < end; i++)
-            {
-                audiop->ldata = title[i];
-                audiop->rdata = title[i];
-            }
-        }
-        TITLE_INDEX = end;
-    }
-    if(CURRENT_STATE == IDLE || CURRENT_STATE == CHANGE_ANGLE || CURRENT_STATE == CHANGE_SPEED || CURRENT_STATE == CHANGE_MASS || CURRENT_STATE == CHANGE_PLANET)
+  
+    if(CURRENT_STATE == TITLE || CURRENT_STATE == IDLE || CURRENT_STATE == CHANGE_ANGLE || CURRENT_STATE == CHANGE_SPEED || CURRENT_STATE == CHANGE_MASS || CURRENT_STATE == CHANGE_PLANET)
     {
         int start = WET_HANDS_INDEX;
         int end;
