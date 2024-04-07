@@ -25,6 +25,7 @@
 #define LIGHT_GRAY 0xC618
 #define LIGHT_GREEN 0x87F0
 #define GREEN 0x07E0
+#define LIGHT_BLUE 0x07FF
 
 /*==================STRUCTS==================*/
 
@@ -82,7 +83,7 @@ typedef struct PlanetStruct {
     char name[20];
 
     char mass_string[20];
-    double mass;
+    double Gmass;
 
     char radius_string[20];
     double radius;
@@ -96,7 +97,10 @@ typedef struct PlanetStruct {
 
 
 /*==================GLOBALS==================*/
-
+double PATH_X, PATH_Y, PATH_VX, PATH_VY;
+double PATH_FINAL_ALTITUDE, PATH_FINAL_VELOCITY;
+bool PATH_ROCKET_CRASHED = false;
+bool PATH_ROCKET_SUCCESS = false;
 PlanetStruct PLANETS[4];
 
 bool LEFT_MOUSE_CLICK;
@@ -137,6 +141,8 @@ char CURRENT_TEXT_SPEED[10] = "300";
 char CURRENT_TEXT_ANGLE[10] = "0"; 
 
 double CURRENT_DOUBLE_ANGLE;
+double CURRENT_DOUBLE_SPEED;
+double CURRENT_DOUBLE_MASS;
 
 char* strings[] = {CURRENT_TEXT_ANGLE, CURRENT_TEXT_SPEED, CURRENT_TEXT_MASS};
 
@@ -258,19 +264,60 @@ short int CurrentSceneDefault[512][240];
 int previousFrame[2][2];
 enum Planet CURRENT_PLANET;
 double ROCKET_START_ANGLE;
+int PATH_ANIMATION_INDEX;
+char SIMULATING_STRINGS[4][25] = {"Simulating.  ", "Simulating.. ", "Simulating...", "Simulating   "};
 
+//path animation timestep in seconds
+const float ANIMATION_TIME_STEP = 5;
 
 int main() 
 {
-    //initialie PLANETS array
-    PlanetStruct moon = (PlanetStruct) { .name = "MOON", .mass_string = "7.342 x 10^22 kg", .radius_string = "1,737.5 km", .atmosphereic_height_string = "0 km", .atmosphere_avg_density_string = "0 kg/m^3" };
+    //initialize PLANETS array
+    PlanetStruct moon = (PlanetStruct) { .name = "MOON", 
+                                        .mass_string = "7.342 x 10^22 kg", 
+                                        .radius_string = "1,737.5 km", 
+                                        .atmosphereic_height_string = "0 km", 
+                                        .atmosphere_avg_density_string = "0 kg/m^3",
+                                        .Gmass = 4.89711e12,
+                                        .radius = 1737500,
+                                        .atmosphere_height = 0,
+                                        .atmosphere_avg_density = 0 };
     PLANETS[MOON] = moon;
-    PlanetStruct mars = (PlanetStruct) { .name = "MARS", .mass_string = "6.417 x 10^23 kg", .radius_string = "3,389.5 km", .atmosphereic_height_string = "0 km", .atmosphere_avg_density_string = "0 kg/m^3" };
+
+    PlanetStruct mars = (PlanetStruct) { .name = "MARS", 
+                                        .mass_string = "6.417 x 10^23 kg", 
+                                        .radius_string = "3,389.5 km", 
+                                        .atmosphereic_height_string = "80 km", 
+                                        .atmosphere_avg_density_string = "0.02 kg/m^3",
+                                        .Gmass = 4.28e13,
+                                        .radius = 3389500,
+                                        .atmosphere_height = 80000,
+                                        .atmosphere_avg_density = 0.020};
     PLANETS[MARS] = mars;
-    PlanetStruct earth = (PlanetStruct) { .name = "EARTH", .mass_string = "5.972 x 10^24 kg", .radius_string = "6,371 km", .atmosphereic_height_string = "0 km", .atmosphere_avg_density_string = "0 kg/m^3" };
+
+    PlanetStruct earth = (PlanetStruct) { .name = "EARTH", 
+                                        .mass_string = "5.972 x 10^24 kg", 
+                                        .radius_string = "6,371 km", 
+                                        .atmosphereic_height_string = "100 km", 
+                                        .atmosphere_avg_density_string = "1.225 kg/m^3",
+                                        .Gmass = 3.986e14,
+                                        .radius = 6371000,
+                                        .atmosphere_height = 100000,
+                                        .atmosphere_avg_density = 1.225 };
     PLANETS[EARTH] = earth;
-    PlanetStruct darsan = (PlanetStruct) { .name = "DARSAN", .mass_string = "x kg", .radius_string = "x km", .atmosphereic_height_string = "x km", .atmosphere_avg_density_string = "x kg/m^3" };
+
+    PlanetStruct darsan = (PlanetStruct) { .name = "DARSAN", 
+                                        .mass_string = "5.972 x 10^25 kg", 
+                                        .radius_string = "9191 km", 
+                                        .atmosphereic_height_string = "250 km", 
+                                        .atmosphere_avg_density_string = "2.13 kg/m^3",
+                                        .Gmass = 3.986e15,
+                                        .radius = 9191000,
+                                        .atmosphere_height = 250000,
+                                        .atmosphere_avg_density = 2.13};
     PLANETS[DARSAN] = darsan;
+
+    PATH_ANIMATION_INDEX = 0;
 
     enum State CURRENT_STATE = TITLE;
     enum State NEXT_STATE;
@@ -340,6 +387,9 @@ int main()
             case ROCKET_LAUNCH:
                 sprintf(current_state, "State: ROCKET_LAUNCH   ");
                 break;
+            case ROCKET_PATH:
+                sprintf(current_state, "State: ROCKET_PATH    ");
+                break;
             case ROCKET_CRASH:
                 sprintf(current_state, "State: ROCKET_CRASH    ");
                 break;
@@ -353,7 +403,6 @@ int main()
 
         plotString(0, 1, current_state);       
         plotString(0, 0, mouse_pos);
-
         eraseCursor();
         drawCurrentScene(CURRENT_STATE, CURRENT_PLANET, ROCKET_START_ANGLE, X_POSITION, Y_POSITION);
         drawCursor(X_POSITION, Y_POSITION, CURRENT_STATE);
@@ -424,9 +473,11 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
                 {
                     if (switches->data == 0b1111111111)
                     {
+                        CURRENT_DOUBLE_MASS = atof(CURRENT_TEXT_MASS);
+                        CURRENT_DOUBLE_SPEED = atof(CURRENT_TEXT_SPEED);
                         NEXT_STATE = ROCKET_READY;  
                         changeState(ROCKET_READY, planet, vga);
-                    }
+                    } 
                 }
             }
             break;
@@ -509,34 +560,20 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
             changeState(ROCKET_LAUNCH, planet, vga);
             #endif
             break;
-   
-
-        //     //when the user clicks the launch button, the checkStringValid function will run on all 3 of the strings to check if 
-        //     //the user has typed something forbidden
-        //     if(checkStringValid[CURRENT_TEXT_MASS] && checkStringValid[CURRENT_TEXT_ANGLE] && checkStringValid[CURRENT_TEXT_VELOCITY] && CURRENT_STATE == LAUNCH)
-        //     {
-        //         //if the strings are valid, the rocket will launch
-        //         //if the math works out, the rocket will enter rocket launch, and reach orbit
-        //         NEXT_STATE = ROCKET_LAUNCH;
-        //         //if the math does not work out, it will enter rocket crash, and play the according animation
-        //         NEXT_STATE = ROCKET_CRASH;
-        //     }
-
         case ROCKET_LAUNCH:
-        
-            if(ANIMATION_ROCKET_HEIGHT <= -50)
+            if (ANIMATION_ROCKET_HEIGHT <= -90)
             {
                 NEXT_STATE = ROCKET_PATH;
                 changeState(ROCKET_PATH, planet, vga);
-            }  
+            }
             break;
-        // case ROCKET_PATH:
-        
-        //     //if the rocket makes it past orbit
-        //     NEXT_STATE = END;
-        //     //if the rocket does not make it past orbit
-        //     NEXT_STATE = ROCKET_CRASH
-        //     break;
+        case ROCKET_PATH:
+            if (PATH_ROCKET_CRASHED || PATH_ROCKET_SUCCESS)
+            {
+                NEXT_STATE = PATH_ROCKET_CRASHED ? ROCKET_CRASH : END;
+                changeState(NEXT_STATE, planet, vga);
+            }
+            break;
         case ROCKET_CRASH:
             if(ENTER_PRESSED)
             {
@@ -551,11 +588,6 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
                 ENTER_PRESSED = false;
             }
             break;
-
-        // case ROCKET_CRASH:
-
-        // case END:
-
         default:
             NEXT_STATE = CURRENT_STATE;
             break;
@@ -566,7 +598,7 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
 void changeState(enum State next_state, enum Planet planet, VGA *vga)
 {   
     voidScreen(BLACK);
-    //TODO: CHANGE 0 TO CURRENT_DOUBLE_ANGLE
+
     plotBackground(next_state, planet);
 
     wait_for_v_sync(vga);
@@ -576,7 +608,8 @@ void changeState(enum State next_state, enum Planet planet, VGA *vga)
 
     wait_for_v_sync(vga);
 
-    clearCharacters(' ');
+    if (next_state != END && next_state != ROCKET_CRASH)
+        clearCharacters(' ');
 
     CURRENT_PLANET = planet;
 
@@ -664,7 +697,7 @@ void plotCircle(int x, int y, int radius, short int outline_color)
 
 }
 
-void plotLine(int x1, int x2, int y1, int y2, short color)
+void plotLine(int x1, int y1, int x2, int y2, short color)
 {
     //use Breseham's line algorithm to plot the line using plotPixel()
     int dx = abs(x2 - x1);
@@ -762,6 +795,13 @@ void plotBackground(enum State state, enum Planet planet)
             for (int x = 0; x < X_RES; x++)
                 plotPixel(x, y, title[X_RES * y + x]);
         
+        return;
+    }
+
+    if (state == ROCKET_PATH)
+    {
+        //draw all black
+        voidScreen(BLACK);
         return;
     }
 
@@ -939,12 +979,151 @@ void drawCurrentScene(enum State state, enum Planet planet, double angle, int cu
             //rocket:
             plotRocket(128, 150, angle, false);
             break;
+        case ROCKET_PATH:
+            //rocket:4
+            drawPath(CURRENT_PLANET, ROCKET_START_ANGLE, PATH_ANIMATION_INDEX);
+            PATH_ANIMATION_INDEX++;
         case END:
             break;
         default:
             break;
     }
     return;
+}
+
+void drawPath(enum Planet planet, double start_angle, int animation_index)
+{
+    plotString(35, 1, SIMULATING_STRINGS[animation_index % 4]);
+
+    //PLOT ALTITUDE
+    char altitude_string[50] = "Altitude: ";
+    char temp[25] = "";
+    sprintf(temp, "%.0f", PATH_Y - PLANETS[planet].radius);
+    strcat(altitude_string, temp);
+    strcat(altitude_string, " m        ");
+    plotString(35, 3, altitude_string);
+
+    //PLOT VELOCITY X AND Y
+    char velocity_x_string[50] = "Horizontal Velocity: ";
+    sprintf(temp, "%.2f", PATH_VX);
+    strcat(velocity_x_string, temp);
+    strcat(velocity_x_string, " m/s        ");
+    plotString(35, 5, velocity_x_string);
+
+    char velocity_y_string[50] = "Vertical Velocity: ";
+    sprintf(temp, "%.2f", PATH_VY);
+    strcat(velocity_y_string, temp);
+    strcat(velocity_y_string, " m/s        ");
+    plotString(35, 7, velocity_y_string);
+
+    //PLOT ANIMATION INDEX
+    char animation_index_string[50] = "Animation Index: ";
+    sprintf(temp, "%d", PATH_ANIMATION_INDEX);
+    strcat(animation_index_string, temp);
+    strcat(animation_index_string, "        ");
+    plotString(35, 9, animation_index_string);
+
+
+    plotLine(0, 200, 320, 200, WHITE);
+    plotString(0, 49, "Surface");
+    if (planet != MOON)
+    {
+        plotLine(0, 60, 320, 60, LIGHT_BLUE);
+        plotString(0, 14, "Atmosphere");
+    }
+
+    double meters_per_pixel; //number of meters in a pixel
+    //use the fact that the atmosphere is a constant 140px high
+    //for the moon, use mars atmos. for scaling
+    if (planet == MOON)
+        meters_per_pixel = PLANETS[MARS].atmosphere_height / 140;
+    else
+        meters_per_pixel = PLANETS[planet].atmosphere_height / 140;
+
+    if (PATH_ANIMATION_INDEX == 0)
+    {
+        PATH_VX = CURRENT_DOUBLE_SPEED * cos(start_angle * M_PI / 180);
+        PATH_VY = CURRENT_DOUBLE_SPEED * sin(start_angle * M_PI / 180);
+        PATH_X = 0;
+        PATH_Y = PLANETS[planet].radius;
+    }
+
+    double Fg, Fdx, Fdy, ax, ay, v_orb;
+    double original_x = PATH_X, original_y = PATH_Y;
+    double o_x_pixel = 160 + (original_x/meters_per_pixel);
+    double o_y_pixel = 200 - ((original_y - PLANETS[planet].radius) / meters_per_pixel);
+    //check that the rocket has not crashed, and is within the atmosphere
+    if (PATH_Y < (PLANETS[planet].radius + PLANETS[planet].atmosphere_height) && PATH_Y >= PLANETS[planet].radius - 50)
+    {
+        printf("Simulating normal\n");
+        //solve for Fg = Gm * m / r^2
+        Fg = -1 * PLANETS[planet].Gmass * CURRENT_DOUBLE_MASS / pow(PATH_Y, 2);
+        //solve for Fdx and Fdy (drag) where Fd = 4*rho*v^2
+        Fdx = -1 * 4 * PLANETS[planet].atmosphere_avg_density * pow(PATH_VX, 2);
+        Fdy = -1 * 4 * PLANETS[planet].atmosphere_avg_density * pow(PATH_VY, 2);
+        //get ax and ay using a = F/m
+        ay = (Fg + Fdy) / (CURRENT_DOUBLE_MASS * 1000);
+        ax = Fdx / (CURRENT_DOUBLE_MASS * 1000);
+
+        //printf out ax, ay
+        printf("ax: %f, ay: %f\n", ax, ay);
+
+        //update the velocity and position using the kinematic equations
+        PATH_VX = PATH_VX + ax * ANIMATION_TIME_STEP;
+        PATH_VY = PATH_VY + ay * ANIMATION_TIME_STEP;
+        PATH_X = PATH_X + PATH_VX * ANIMATION_TIME_STEP;
+        PATH_Y = PATH_Y + PATH_VY * ANIMATION_TIME_STEP;
+
+        //plot the path
+        plotLine(o_x_pixel, o_y_pixel, 160 + (PATH_X/meters_per_pixel), 200 - ((PATH_Y - PLANETS[planet].radius) / meters_per_pixel), WHITE);
+    }
+    else if (PATH_Y <= PLANETS[planet].radius) //if the rocket crashed
+    {
+        PATH_ROCKET_CRASHED = true;
+    }    
+    else //rocket has reached the atmosphere
+    {
+        //if the rocket is on screen, continue with calcs
+        if (o_x_pixel < 320 && o_y_pixel > 0)
+        {
+            //solve for Fg = Gm * m / r^2
+            Fg = -1 * PLANETS[planet].Gmass * CURRENT_DOUBLE_MASS / pow(PATH_Y, 2);
+            //solve for Fdx and Fdy (drag) where Fd = 4*rho*v^2
+            Fdx = 0;
+            Fdy = 0;
+            //get ax and ay using a = F/m
+            ay = (Fg + Fdy) / CURRENT_DOUBLE_MASS;
+            ax = Fdx / CURRENT_DOUBLE_MASS;
+
+            //update the velocity and position using the kinematic equations
+            PATH_VX = PATH_VX + ax * ANIMATION_TIME_STEP;
+            PATH_VY = PATH_VY + ay * ANIMATION_TIME_STEP;
+            PATH_X = PATH_X + PATH_VX * ANIMATION_TIME_STEP;
+            PATH_Y = PATH_Y + PATH_VY * ANIMATION_TIME_STEP; 
+
+            //plot the path
+            plotLine(o_x_pixel, o_y_pixel, 160 + (PATH_X/meters_per_pixel), 200 - ((PATH_Y - PLANETS[planet].radius) / meters_per_pixel), WHITE);
+        }
+        else //rocket is off the screen
+        {
+            //calculate orbital velocity, V_orb = sqrt(Gm/r)
+            v_orb = sqrt(PLANETS[planet].Gmass / PATH_Y);
+            //check if the vx is >= v_orb
+            if (PATH_VX >= v_orb)
+            {
+                //get the oribtal radius r = Gm/v_x^2
+                PATH_FINAL_ALTITUDE = PLANETS[planet].Gmass / pow(PATH_VX, 2) - PLANETS[planet].radius;
+                //store vx in the final vel
+                PATH_FINAL_VELOCITY = PATH_VX;
+                //set the success flag to true
+                PATH_ROCKET_SUCCESS = true;
+            }
+            else
+            {
+                PATH_ROCKET_CRASHED = true;
+            }
+        }
+    }
 }
 
 void displayEditPanel(enum State state, int cursor_x, int cursor_y)
@@ -1014,9 +1193,15 @@ void drawLaunchButton(int cursor_x, int cursor_y)
 }
 
 void drawCursor(int x, int y, enum State state)
-{
-    //dont draw cursor if in state w/ no cursor
-    if (state == TITLE || state == CHANGE_ANGLE || state == CHANGE_SPEED || state == CHANGE_MASS || state == END || state == ROCKET_READY) return;
+{    //dont draw cursor if in state w/ no cursor
+    if (state == TITLE 
+    || state == CHANGE_ANGLE 
+    || state == CHANGE_SPEED 
+    || state == CHANGE_MASS 
+    || state == END 
+    || state == ROCKET_READY
+    || state == ROCKET_LAUNCH
+    || state == ROCKET_PATH ) return;
 
     for (int i = 0; i < 16; i++)
         for (int j = 0; j < 16; j++)
