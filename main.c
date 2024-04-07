@@ -1445,6 +1445,32 @@ void playSoundEffects(enum State CURRENT_STATE)
         }
         COUNTDOWN_INDEX = end;
     }
+    if(CURRENT_STATE == ROCKET_LAUNCH)
+    {
+        int start = LAUNCH_INDEX;
+        int end;
+        if(LAUNCH_INDEX + RIGHT_AVAILABLE > 96335)
+        {
+            end = 96335;
+            for(int i = start; i < end; i++)
+            {
+                audiop->ldata = launch[i];
+                audiop->rdata = launch[i];
+
+            }
+        }
+        else
+        {
+            end = LAUNCH_INDEX + RIGHT_AVAILABLE;
+            for(int i = start; i < end; i++)
+            {
+                audiop->ldata = launch[i];
+                audiop->rdata = launch[i];
+            }
+        }
+        LAUNCH_INDEX = end;
+    }
+
 
 }   
 #endif
