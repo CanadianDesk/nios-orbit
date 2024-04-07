@@ -61,9 +61,9 @@ enum State {
     CHANGE_SPEED,
     CHANGE_MASS,
     CHANGE_PLANET,
-    ROCKET_READY,
-    ROCKET_LAUNCH,
-    ROCKET_PATH,
+    ROCKET_READY, //countdown
+    ROCKET_LAUNCH, //static animation
+    ROCKET_PATH, //dynamic animation
     ROCKET_CRASH,
     END
 };
@@ -611,6 +611,40 @@ void plotBox(int x, int y, int width, int height, short int outline_color, short
     }
 }
 
+void plotLine(int x1, int x2, int y1, int y2, short color)
+{
+    //use Breseham's line algorithm to plot the line using plotPixel()
+    int dx = abs(x2 - x1);
+    int dy = abs(y2 - y1);
+
+    int sx = x1 < x2 ? 1 : -1;
+    int sy = y1 < y2 ? 1 : -1;
+
+    int err = dx - dy;
+
+    while (true)
+    {
+        plotPixel(x1, y1, color);
+
+        if (x1 == x2 && y1 == y2)
+            break;
+
+        int e2 = 2 * err;
+
+        if (e2 > -dy)
+        {
+            err -= dy;
+            x1 += sx;
+        }
+
+        if (e2 < dx)
+        {
+            err += dx;
+            y1 += sy;
+        }
+    }
+}
+
 void voidScreen(short int color)
 {   
     //clear the video buffer
@@ -706,32 +740,22 @@ void plotBackground(enum State state, enum Planet planet)
 void plotRocket(const int x_offset, const int y_offset, double angle, const bool flame_on) 
 {   
 
-    //check angle
-    if (angle == 0)
-    {
-        for (int y = 0; y < 64; y++)
-            for (int x = 0; x < 64; x++)
-            {
-                if(flame_on ? rocket_flame[y * 64 + x] : rocket[y * 64 + x] == 0xf81f || flame_on ? rocket_flame[y * 64 + x] : rocket[y * 64 + x] == 0xf81e) continue;
-                plotPixel(x + x_offset, y + y_offset, flame_on ? rocket_flame[y * 64 + x] : rocket[y * 64 + x]);
-            }
-    }
-    else
-    {   
-        //convert radians
-        angle = angle * M_PI / 180;
+    for (int y = 0; y < 64; y++)
+        for (int x = 0; x < 64; x++)
+        {
+            if(flame_on ? rocket_flame[y * 64 + x] : rocket[y * 64 + x] == 0xf81f || flame_on ? rocket_flame[y * 64 + x] : rocket[y * 64 + x] == 0xf81e) continue;
+            plotPixel(x + x_offset, y + y_offset, flame_on ? rocket_flame[y * 64 + x] : rocket[y * 64 + x]);
+        }
 
-        //use rotation matrix formulas to plot the rocket upon rotation
-        //the loops will use the tru x and y to traverse the array, but the plot_x and plot_y will
-        //be determined using sign and cos
-        for (int y = 0; y < 64; y++)
-            for (int x = 0; x < 64; x++)
-            {
-                if (flame_on ? rocket_flame[y * 64 + x] : rocket[y * 64 + x] == 0xf81f || flame_on ? rocket_flame[y * 64 + x] : rocket[y * 64 + x] == 0xf81e)
-                    continue;
-                plotPixel(x_offset + (x*cos(angle) - y*sin(angle)), y_offset + (x*sin(angle) + y*cos(angle)), flame_on ? rocket_flame[y * 64 + x] : rocket[y * 64 + x]);
-            }
-    }
+    
+    //plot the angle line from the top of the rocket
+    //determine the end point of the line depending on the top
+    if (angle == 0) return;
+
+    int x1 = x_offset + 32, y1 = y_offset;
+    int x2 = x_offset + 32 + 32 * cos(angle), y2 = y_offset - 32 * sin(angle);
+
+    plotLine(x1, x2, y1, y2, WHITE);
 }
 
 void clearCharacters(char c)
