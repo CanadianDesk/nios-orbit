@@ -226,7 +226,9 @@ void getSwitchData();
 //display planet fact panel
 void displayFactPanel(enum Planet planet);
 
-void playSoundEffects(enum State CURRENT_STATE);
+void playSoundEffects();
+
+void rocketLaunchAnimation(enum State CURRENT_STATE);
 
 void drawLaunchButton();
 bool checkAngleValue(char* angle_string);
@@ -253,24 +255,6 @@ double ROCKET_START_ANGLE;
 
 int main() 
 {
-    #ifdef AUDIO
-    //initialize sound indices
-    SOUNDS_INDEX_ARRAY[TITLE] = WET_HANDS_INDEX;
-    SOUNDS_INDEX_ARRAY[IDLE] = WET_HANDS_INDEX;
-    SOUNDS_INDEX_ARRAY[CHANGE_ANGLE] = WET_HANDS_INDEX;
-    SOUNDS_INDEX_ARRAY[CHANGE_SPEED] = WET_HANDS_INDEX;
-    SOUNDS_INDEX_ARRAY[CHANGE_MASS] = WET_HANDS_INDEX;
-    SOUNDS_INDEX_ARRAY[CHANGE_PLANET] = WET_HANDS_INDEX;
-    SOUNDS_INDEX_ARRAY[ROCKET_READY] = COUNTDOWN_INDEX;
-    SOUNDS_INDEX_ARRAY[ROCKET_LAUNCH] = WET_HANDS_INDEX;
-    SOUNDS_INDEX_ARRAY[ROCKET_PATH] = WET_HANDS_INDEX;
-    SOUNDS_INDEX_ARRAY[ROCKET_CRASH] = METAL_PIPE_INDEX;
-    SOUNDS_INDEX_ARRAY[END] = ARCADIA_INDEX;
-    #endif
-
-
-
-
     //initialie PLANETS array
     PlanetStruct moon = (PlanetStruct) { .name = "MOON", .mass_string = "7.342 x 10^22 kg", .radius_string = "1,737.5 km", .atmosphereic_height_string = "0 km", .atmosphere_avg_density_string = "0 kg/m^3" };
     PLANETS[MOON] = moon;
@@ -309,7 +293,7 @@ int main()
   
         // if(CURRENT_STATE < 5 || CURRENT_STATE > 1)
         #ifdef AUDIO
-        playSoundEffects(CURRENT_STATE);
+        playSoundEffects();
         #endif
         getKeyBoardData(strings[CURRENT_STATE - 2], CURRENT_STATE);
         getSwitchData();
@@ -1393,48 +1377,33 @@ bool checkStringValid(char *string, enum State CURRENT_STATE)
     return true;
 }
 #ifdef AUDIO
-void playSoundEffects(enum State CURRENT_STATE)
+void playSoundEffects()
 {
     //get the number of available words
     RIGHT_AVAILABLE = audiop->wsrc;
     //write that many words to the FIFO, and then increment the index accordingly
-    //read from the global variables
-    int start = SOUNDS_INDEX_ARRAY[CURRENT_STATE];
+    int start = WET_HANDS_INDEX;
     int end;
-    if(start + RIGHT_AVAILABLE > 720352)
+    if(WET_HANDS_INDEX + RIGHT_AVAILABLE > 720352)
     {
-        end = start + RIGHT_AVAILABLE - 720352;
+        end = WET_HANDS_INDEX + RIGHT_AVAILABLE - 720352;
         for(int i = start; i < 720352; i++)
         {
-            audiop->ldata = SOUNDS_ARRAY[CURRENT_STATE][i];
-            audiop->rdata = SOUNDS_ARRAY[CURRENT_STATE][i];
-        }
-        for(int i = 0; i < end; i++)
-        {
-            audiop->ldata = SOUNDS_ARRAY[CURRENT_STATE][i];
-            audiop->rdata = SOUNDS_ARRAY[CURRENT_STATE][i];
+            audiop->ldata = wethands[i];
+            audiop->rdata = wethands[i];
+
         }
     }
     else
     {
-        end = SOUNDS_INDEX_ARRAY[CURRENT_STATE] + RIGHT_AVAILABLE;
+        end = WET_HANDS_INDEX + RIGHT_AVAILABLE;
         for(int i = start; i < end; i++)
         {
-            audiop->ldata = SOUNDS_ARRAY[CURRENT_STATE][i];;
-            audiop->rdata = SOUNDS_ARRAY[CURRENT_STATE][i];;
+            audiop->ldata = wethands[i];
+            audiop->rdata = wethands[i];
         }
     }
-    //write back to the global variable index
-    if(CURRENT_STATE == TITLE || CURRENT_STATE == IDLE || CURRENT_STATE == CHANGE_ANGLE || CURRENT_STATE == CHANGE_SPEED || CURRENT_STATE == CHANGE_MASS || CURRENT_STATE == CHANGE_PLANET)
-    {
-        WET_HANDS_INDEX = end;
-    }
-    if(CURRENT_STATE == ROCKET_READY)
-    {
-        COUNTDOWN_INDEX = end;
-    }
-
-
+    WET_HANDS_INDEX = end;
 }   
 #endif
 
