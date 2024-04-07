@@ -577,6 +577,7 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
                 NEXT_STATE = IDLE;
                 ENTER_PRESSED = false;
                 reset();
+                changeState(IDLE, planet, vga);
             }
             break;
         case END:
@@ -585,6 +586,7 @@ enum State ControlPath(enum State CURRENT_STATE, int cursor_x, int cursor_y, enu
                 NEXT_STATE = IDLE;
                 ENTER_PRESSED = false;
                 reset();
+                changeState(IDLE, planet, vga);
             }
             break;
         default:
