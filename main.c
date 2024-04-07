@@ -803,6 +803,13 @@ void plotBackground(enum State state, enum Planet planet)
         return;
     }
 
+    if (state == END)
+    {
+        voidScreen(BLACK);
+        plotCircle(160, 120, 100, WHITE);
+        return;
+    }
+
     for (int y = 0; y < Y_RES; y++)
     {
         for (int x = 0; x < X_RES; x++)
