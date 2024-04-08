@@ -813,6 +813,10 @@ void plotBackground(enum State state, enum Planet planet)
         plotCircle(160, 120, 100, WHITE);
         return;
     }
+    if (state == ROCKET_CRASH && crash[X_RES * y + x] != 0x0)
+        for (int y = 0; y < Y_RES; y++)
+            for (int x = 0; x < X_RES; x++)
+                plotPixel(x, y, crash[X_RES * y + x]);
 
     for (int y = 0; y < Y_RES; y++)
     {
@@ -822,8 +826,6 @@ void plotBackground(enum State state, enum Planet planet)
             {
                 case MARS:
                     plotPixel(x, y, mars[X_RES * y + x]);
-                    if (state == ROCKET_CRASH && crash[X_RES * y + x] != 0x0)
-                        plotPixel(x, y, crash[X_RES * y + x]);
                     break;
                 case MOON:
                     plotPixel(x, y, moon[X_RES * y + x]);
