@@ -118,7 +118,7 @@ int Y_POSITION = 120;
 int NEW_X_POSITION= 160;
 int NEW_Y_POSITION = 120;
 
-int ANGLE_IDX = 1;
+int ANGLE_IDX = 0;
 int SPEED_IDX = 3;
 int MASS_IDX = 3;
 
@@ -354,52 +354,52 @@ int main()
             
         }
 
-        char mouse_pos[25];
-        sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
-        char current_state[25] = "";
-        strcpy(current_state, "");
-        switch (CURRENT_STATE)
-        {
-            case TITLE:
-                sprintf(current_state, "State: TITLE         ");
-                break;
-            case IDLE:
-                sprintf(current_state, "State: IDLE           ");
-                break;
-            case CHANGE_ANGLE:
-                sprintf(current_state, "State: CHANGE_ANGLE ");
-                break;
-            case CHANGE_SPEED:
-                sprintf(current_state, "State: CHANGE_SPEED ");
-                break;
-            case CHANGE_MASS:
-                sprintf(current_state, "State: CHANGE_MASS   ");
-                break;  
-            case ROCKET_READY:
-                sprintf(current_state, "State: ROCKET_READY  ");
-                break;
-            case CHANGE_PLANET:
-                sprintf(current_state, "State: CHANGE_PLANET   ");
-                break;
-            case ROCKET_LAUNCH:
-                sprintf(current_state, "State: ROCKET_LAUNCH   ");
-                break;
-            case ROCKET_PATH:
-                sprintf(current_state, "State: ROCKET_PATH    ");
-                break;
-            case ROCKET_CRASH:
-                sprintf(current_state, "State: ROCKET_CRASH    ");
-                break;
-            case END:
-                sprintf(current_state, "State: END             ");
-                break;
-            default:
-                sprintf(current_state, "State: ERROR           ");
-                break;
-        }
+        // char mouse_pos[25];
+        // sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
+        // char current_state[25] = "";
+        // strcpy(current_state, "");
+        // switch (CURRENT_STATE)
+        // {
+        //     case TITLE:
+        //         sprintf(current_state, "State: TITLE         ");
+        //         break;
+        //     case IDLE:
+        //         sprintf(current_state, "State: IDLE           ");
+        //         break;
+        //     case CHANGE_ANGLE:
+        //         sprintf(current_state, "State: CHANGE_ANGLE ");
+        //         break;
+        //     case CHANGE_SPEED:
+        //         sprintf(current_state, "State: CHANGE_SPEED ");
+        //         break;
+        //     case CHANGE_MASS:
+        //         sprintf(current_state, "State: CHANGE_MASS   ");
+        //         break;  
+        //     case ROCKET_READY:
+        //         sprintf(current_state, "State: ROCKET_READY  ");
+        //         break;
+        //     case CHANGE_PLANET:
+        //         sprintf(current_state, "State: CHANGE_PLANET   ");
+        //         break;
+        //     case ROCKET_LAUNCH:
+        //         sprintf(current_state, "State: ROCKET_LAUNCH   ");
+        //         break;
+        //     case ROCKET_PATH:
+        //         sprintf(current_state, "State: ROCKET_PATH    ");
+        //         break;
+        //     case ROCKET_CRASH:
+        //         sprintf(current_state, "State: ROCKET_CRASH    ");
+        //         break;
+        //     case END:
+        //         sprintf(current_state, "State: END             ");
+        //         break;
+        //     default:
+        //         sprintf(current_state, "State: ERROR           ");
+        //         break;
+        // }
 
-        plotString(0, 1, current_state);       
-        plotString(0, 0, mouse_pos);
+        // plotString(0, 1, current_state);       
+        // plotString(0, 0, mouse_pos);
         eraseCursor();
         drawCurrentScene(CURRENT_STATE, CURRENT_PLANET, ROCKET_START_ANGLE, X_POSITION, Y_POSITION);
         drawCursor(X_POSITION, Y_POSITION, CURRENT_STATE);
@@ -1171,12 +1171,12 @@ void drawPath(enum Planet planet, double start_angle, int animation_index)
 
 void displayEditPanel(enum State state, int cursor_x, int cursor_y)
 {
-    plotBox(0, 75, 70, 70, WHITE, GRAY);
-    plotString(2, 20, "Angle (deg):");
+    plotBox(0, 70, 85, 75, WHITE, GRAY);
+    plotString(1, 20, "Angle (deg):");
     plotString(2, 22, CURRENT_TEXT_ANGLE);
-    plotString(2, 25, "Initial Speed (m/s):");
+    plotString(1, 25, "Initial Speed (m/s):");
     plotString(2, 27, CURRENT_TEXT_SPEED);
-    plotString(2, 30, "Rocket Mass (kg):");
+    plotString(1, 30, "Rocket Mass (kg):");
     plotString(2, 32, CURRENT_TEXT_MASS);
 
     //decide box highlight based on state
@@ -1231,8 +1231,8 @@ void displayFactPanel(enum Planet planet)
 
 void drawLaunchButton(int cursor_x, int cursor_y)
 {
-    plotBox(0, 146, 70, 12, WHITE, cursor_x > 0 && cursor_x < 70 && cursor_y > 146 && cursor_y < 176 ? GREEN : RED);
-    plotString(5, 38, "LAUNCH");
+    plotBox(0, 146, 85, 12, WHITE, cursor_x > 0 && cursor_x < 70 && cursor_y > 146 && cursor_y < 176 ? GREEN : RED);
+    plotString(7, 38, "LAUNCH");
 }
 
 void drawCursor(int x, int y, enum State state)
@@ -1267,116 +1267,153 @@ void drawSwitches()
      //outline box for switches
     plotBox(60, 216, 200, 24, WHITE, GRAY);
     //draw the 10 switches
+    plotBox(0, 0, 185, 50, WHITE, GRAY);
     
     if(POWER_ON)
     {
         plotBox(64, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(64, 228, 12, 10, BLACK, LIGHT_GRAY);
+        plotString(1, 1, "POWER: ONLINE");
     }
     else
     {
         plotBox(64, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(64, 228, 12, 10, BLACK, RED);
-
+        plotString(1, 1, "POWER: OFFLINE");
     }
 
     if(GROUND_SUPPORT_EQUIPMENT_DISCONNECT)
     {
         plotBox(84, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(84, 228, 12, 10, BLACK, LIGHT_GRAY);
+        plotString(1, 2, "GROUND SUPPORT EQUIPMENT DISCONNECT: ONLINE");
+
     }
     else
     {
         plotBox(84, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(84, 228, 12, 10, BLACK, RED);
+        plotString(1, 2, "GROUND SUPPORT EQUIPMENT DISCONNECT: OFFLINE");
     }
 
     if(FLIGHT_COMPUTER)
     {
         plotBox(104, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(104, 228, 12, 10, BLACK, LIGHT_GRAY);
+        plotString(1, 3, "FLIGHT COMPUTER: ONLINE");
+
     }
     else
     {
         plotBox(104, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(104, 228, 12, 10, BLACK, RED);
+        plotString(1, 3, "FLIGHT COMPUTER: OFFLINE");
+
     }
 
     if(MATH_ENGINE)
     {
         plotBox(124, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(124, 228, 12, 10, BLACK, LIGHT_GRAY);
+        plotString(1, 4, "MATH ENGINE: ONLINE");
+
     }
     else
     {
         plotBox(124, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(124, 228, 12, 10, BLACK, RED);
+        plotString(1, 4, "MATH ENGINE: OFFLINE");
+
     }
     
     if(RANGE_SAFETY_SYSTEM)
     {
         plotBox(144, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(144, 228, 12, 10, BLACK, LIGHT_GRAY);
+        plotString(1, 5, "RANGE SAFETY SYSTEM: ONLINE");
+        
     }
     else
     {
         plotBox(144, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(144, 228, 12, 10, BLACK, RED);
+        plotString(1, 5, "RANGE SAFETY SYSTEM: OFFLINE");
+
     }
 
     if(PROPELLANT_TANK_PRESSURIZATION)
     {
         plotBox(164, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(164, 228, 12, 10, BLACK, LIGHT_GRAY);
+        plotString(1, 6, "PROPELLANT TANK PRESSURIZATION: ONLINE");
+
     }
     else
     {
         plotBox(164, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(164, 228, 12, 10, BLACK, RED);
+        plotString(1, 6, "PROPELLANT TANK PRESSURIZATION: OFFLINE");
+
     }
 
     if(IGNITION_SEQUENCE)
     {
         plotBox(184, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(184, 228, 12, 10, BLACK, LIGHT_GRAY);
+        plotString(1, 7, "IGNITION SEQUENCE: ONLINE");
+
     }
     else
     {
         plotBox(184, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(184, 228, 12, 10, BLACK, RED);
+        plotString(1, 7, "IGNITION SEQUENCE: OFFLINE");
+
     }
 
     if(LAUNCH_COMMIT)
     {
         plotBox(204, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(204, 228, 12, 10, BLACK, LIGHT_GRAY);
+        plotString(1, 8, "LAUNCH COMMIT: ONLINE");
+
     }
     else
     {
         plotBox(204, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(204, 228, 12, 10, BLACK, RED);
+        plotString(1, 8, "LAUNCH COMMIT: OFFLINE");
+
     }
 
     if(THRUST_VECTOR_CONTROL)
     {
         plotBox(224, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(224, 228, 12, 10, BLACK, LIGHT_GRAY);
+        plotString(1, 9, "THRUST VECTOR CONTROL: ONLINE");
+
     }
     else
     {
         plotBox(224, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(224, 228, 12, 10, BLACK, RED);
+        plotString(1, 9, "THRUST VECTOR CONTROL: OFFLINE");
+
     }
 
     if(TELEMETRY_SYSTEMS)
     {
         plotBox(244, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(244, 228, 12, 10, BLACK, LIGHT_GRAY);
+        plotString(1, 10, "TELEMETRY SYSTEMS: ONLINE");
+
     }
     else
     {
         plotBox(244, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(244, 228, 12, 10, BLACK, RED);
+        plotString(1, 10, "TELEMETRY SYSTEMS: OFFLINE");
+
     }
 
 
@@ -1875,9 +1912,6 @@ void reset()
     PATH_ROCKET_CRASHED = false;
     PATH_ROCKET_SUCCESS = false;
     ENTER_PRESSED = false;
-    ANGLE_IDX = 1;
-    SPEED_IDX = 3;
-    MASS_IDX = 3;
     ANIMATION_ROCKET_HEIGHT = 150;
 
     #ifdef AUDIO
