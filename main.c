@@ -354,52 +354,52 @@ int main()
             
         }
 
-        // char mouse_pos[25];
-        // sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
-        // char current_state[25] = "";
-        // strcpy(current_state, "");
-        // switch (CURRENT_STATE)
-        // {
-        //     case TITLE:
-        //         sprintf(current_state, "State: TITLE         ");
-        //         break;
-        //     case IDLE:
-        //         sprintf(current_state, "State: IDLE           ");
-        //         break;
-        //     case CHANGE_ANGLE:
-        //         sprintf(current_state, "State: CHANGE_ANGLE ");
-        //         break;
-        //     case CHANGE_SPEED:
-        //         sprintf(current_state, "State: CHANGE_SPEED ");
-        //         break;
-        //     case CHANGE_MASS:
-        //         sprintf(current_state, "State: CHANGE_MASS   ");
-        //         break;  
-        //     case ROCKET_READY:
-        //         sprintf(current_state, "State: ROCKET_READY  ");
-        //         break;
-        //     case CHANGE_PLANET:
-        //         sprintf(current_state, "State: CHANGE_PLANET   ");
-        //         break;
-        //     case ROCKET_LAUNCH:
-        //         sprintf(current_state, "State: ROCKET_LAUNCH   ");
-        //         break;
-        //     case ROCKET_PATH:
-        //         sprintf(current_state, "State: ROCKET_PATH    ");
-        //         break;
-        //     case ROCKET_CRASH:
-        //         sprintf(current_state, "State: ROCKET_CRASH    ");
-        //         break;
-        //     case END:
-        //         sprintf(current_state, "State: END             ");
-        //         break;
-        //     default:
-        //         sprintf(current_state, "State: ERROR           ");
-        //         break;
-        // }
+        char mouse_pos[25];
+        sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
+        char current_state[25] = "";
+        strcpy(current_state, "");
+        switch (CURRENT_STATE)
+        {
+            case TITLE:
+                sprintf(current_state, "State: TITLE         ");
+                break;
+            case IDLE:
+                sprintf(current_state, "State: IDLE           ");
+                break;
+            case CHANGE_ANGLE:
+                sprintf(current_state, "State: CHANGE_ANGLE ");
+                break;
+            case CHANGE_SPEED:
+                sprintf(current_state, "State: CHANGE_SPEED ");
+                break;
+            case CHANGE_MASS:
+                sprintf(current_state, "State: CHANGE_MASS   ");
+                break;  
+            case ROCKET_READY:
+                sprintf(current_state, "State: ROCKET_READY  ");
+                break;
+            case CHANGE_PLANET:
+                sprintf(current_state, "State: CHANGE_PLANET   ");
+                break;
+            case ROCKET_LAUNCH:
+                sprintf(current_state, "State: ROCKET_LAUNCH   ");
+                break;
+            case ROCKET_PATH:
+                sprintf(current_state, "State: ROCKET_PATH    ");
+                break;
+            case ROCKET_CRASH:
+                sprintf(current_state, "State: ROCKET_CRASH    ");
+                break;
+            case END:
+                sprintf(current_state, "State: END             ");
+                break;
+            default:
+                sprintf(current_state, "State: ERROR           ");
+                break;
+        }
 
-        // plotString(0, 1, current_state);       
-        // plotString(0, 0, mouse_pos);
+        plotString(0, 1, current_state);       
+        plotString(0, 0, mouse_pos);
         eraseCursor();
         drawCurrentScene(CURRENT_STATE, CURRENT_PLANET, ROCKET_START_ANGLE, X_POSITION, Y_POSITION);
         drawCursor(X_POSITION, Y_POSITION, CURRENT_STATE);
@@ -813,11 +813,6 @@ void plotBackground(enum State state, enum Planet planet)
         plotCircle(160, 120, 100, WHITE);
         return;
     }
-    if (state == ROCKET_CRASH)
-        for (int y = 0; y < Y_RES; y++)
-            for (int x = 0; x < X_RES; x++)
-                if (crash[X_RES * y + x] != 0x0)
-                    plotPixel(x, y, crash[X_RES * y + x]);
 
     for (int y = 0; y < Y_RES; y++)
     {
@@ -827,6 +822,8 @@ void plotBackground(enum State state, enum Planet planet)
             {
                 case MARS:
                     plotPixel(x, y, mars[X_RES * y + x]);
+                    if (state == ROCKET_CRASH && crash[X_RES * y + x] != 0x0)
+                        plotPixel(x, y, crash[X_RES * y + x]);
                     break;
                 case MOON:
                     plotPixel(x, y, moon[X_RES * y + x]);
@@ -1174,19 +1171,7 @@ void drawPath(enum Planet planet, double start_angle, int animation_index)
 
 void displayEditPanel(enum State state, int cursor_x, int cursor_y)
 {
-    plotBox(0, 0, 90, 150, WHITE, GRAY);
-    plotString(2, 3, POWER_ON ? "POWER: ONLINE" : "POWER: OFFLINE");
-    plotString(2, 6, GROUND_SUPPORT_EQUIPMENT_DISCONNECT ? "GROUND SUPPORT EQUIPMENT DISCONNECT: ONLINE" : "GROUND SUPPORT EQUIPMENT DISCONNECT: OFFLINE");
-    plotString(2, 9, FLIGHT_COMPUTER ? "FLIGHT COMPUTER: ONLINE" : "FLIGHT COMPUTER: OFFLINE");
-    plotString(2, 12, RANGE_SAFETY_SYSTEM ? "RANGE SAFETY SYSTEM: ONLINE" : "RANGE SAFETY SYSTEM: OFFLINE");
-    plotString(2, 15, PROPELLANT_TANK_PRESSURIZATION ? "PROPELLANT TANK PRESSURIZATION: ONLINE" : "PROPELLANT TANK PRESSURIZATION: OFFLINE");
-    plotString(2, 18, IGNITION_SEQUENCE ? "IGNITION SEQUENCE: ONLINE" : "IGNITION SEQUENCE: OFFLINE");
-    plotString(2, 21, LAUNCH_COMMIT ? "LAUNCH COMMIT: ONLINE" : "LAUNCH COMMIT: OFFLINE");
-    plotString(2, 24, THRUST_VECTOR_CONTROL ? "THRUST VECTOR CONTROL: ONLINE" : "THRUST VECTOR CONTROL: OFFLINE");
-    plotString(2, 27, TELEMETRY_SYSTEMS ? "TELEMETRY SYSTEMS: ONLINE" : "TELEMETRY SYSTEMS: OFFLINE");
-
-    
-    
+    plotBox(0, 75, 70, 70, WHITE, GRAY);
     plotString(2, 20, "Angle (deg):");
     plotString(2, 22, CURRENT_TEXT_ANGLE);
     plotString(2, 25, "Initial Speed (m/s):");
@@ -1759,37 +1744,37 @@ void playSoundEffects(enum State CURRENT_STATE)
         }
         LAUNCH_INDEX = end;
     }
-    // if(CURRENT_STATE == ROCKET_PATH)
-    // {
-    //     int start = ROCKET_PATH_INDEX;
-    //     int end;
-    //     if(ROCKET_PATH_INDEX + RIGHT_AVAILABLE > 631118)
-    //     {
-    //         end = WET_HANDS_INDEX + RIGHT_AVAILABLE - 631118;
-    //         for(int i = start; i < 631118; i++)
-    //         {
-    //             audiop->ldata = path[i];
-    //             audiop->rdata = path[i];
-    //         }
-    //     }
-    //     else
-    //     {
-    //         end = ROCKET_PATH_INDEX + RIGHT_AVAILABLE;
-    //         for(int i = start; i < end; i++)
-    //         {
-    //             audiop->ldata = path[i];
-    //             audiop->rdata = path[i];
-    //         }
-    //     }
-    //     ROCKET_PATH_INDEX = end;
-    // }
+    if(CURRENT_STATE == ROCKET_PATH)
+    {
+        int start = ROCKET_PATH_INDEX;
+        int end;
+        if(ROCKET_PATH_INDEX + RIGHT_AVAILABLE > 631118)
+        {
+            end = WET_HANDS_INDEX + RIGHT_AVAILABLE - 631118;
+            for(int i = start; i < 631118; i++)
+            {
+                audiop->ldata = path[i];
+                audiop->rdata = path[i];
+            }
+        }
+        else
+        {
+            end = ROCKET_PATH_INDEX + RIGHT_AVAILABLE;
+            for(int i = start; i < end; i++)
+            {
+                audiop->ldata = path[i];
+                audiop->rdata = path[i];
+            }
+        }
+        ROCKET_PATH_INDEX = end;
+    }
     if(CURRENT_STATE == ROCKET_CRASH)
     {
         int start = METAL_PIPE_INDEX;
         int end;
-        if(METAL_PIPE_INDEX + RIGHT_AVAILABLE > 88896)
+        if(METAL_PIPE_INDEX + RIGHT_AVAILABLE > 25704)
         {
-            end = 88896;
+            end = 25704;
             for(int i = start; i < end; i++)
             {
                 audiop->ldata = metalpipe[i];
@@ -1810,12 +1795,13 @@ void playSoundEffects(enum State CURRENT_STATE)
     }
     if(CURRENT_STATE == END)
     {
+        // printf("why tf am i here");
         int start = ARCADIA_INDEX;
         int end;
-        if(ARCADIA_INDEX + RIGHT_AVAILABLE > 631118)
+        if(ARCADIA_INDEX + RIGHT_AVAILABLE > 780538)
         {
-            end = ARCADIA_INDEX + RIGHT_AVAILABLE - 631118;
-            for(int i = start; i < 631118; i++)
+            end = ARCADIA_INDEX + RIGHT_AVAILABLE - 780538;
+            for(int i = start; i < 780538; i++)
             {
                 audiop->ldata = arcadia[i];
                 audiop->rdata = arcadia[i];
