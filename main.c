@@ -1330,41 +1330,45 @@ void drawSwitches()
     {
         plotBox(64, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(64, 228, 12, 10, BLACK, LIGHT_GRAY);
-        plotString(1, 1, "POWER: ONLINE");
+        plotString(1, 1, "POWER:                               ONLINE  ");
+        
+
     }
     else
     {
         plotBox(64, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(64, 228, 12, 10, BLACK, RED);
-        plotString(1, 1, "POWER: OFFLINE");
+        plotString(1, 1, "POWER:                               OFFLINE ");
+        
+
     }
 
     if(GROUND_SUPPORT_EQUIPMENT_DISCONNECT)
     {
         plotBox(84, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(84, 228, 12, 10, BLACK, LIGHT_GRAY);
-        plotString(1, 2, "GROUND SUPPORT EQUIPMENT DISCONNECT: ONLINE");
+        plotString(1, 2, "GROUND SUPPORT EQUIPMENT:            ONLINE ");
 
     }
     else
     {
         plotBox(84, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(84, 228, 12, 10, BLACK, RED);
-        plotString(1, 2, "GROUND SUPPORT EQUIPMENT DISCONNECT: OFFLINE");
+        plotString(1, 2, "GROUND SUPPORT EQUIPMENT:            OFFLINE");
     }
 
     if(FLIGHT_COMPUTER)
     {
         plotBox(104, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(104, 228, 12, 10, BLACK, LIGHT_GRAY);
-        plotString(1, 3, "FLIGHT COMPUTER: ONLINE");
+        plotString(1, 3, "FLIGHT COMPUTER:                     ONLINE ");
 
     }
     else
     {
         plotBox(104, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(104, 228, 12, 10, BLACK, RED);
-        plotString(1, 3, "FLIGHT COMPUTER: OFFLINE");
+        plotString(1, 3, "FLIGHT COMPUTER:                     OFFLINE");
 
     }
 
@@ -1372,14 +1376,14 @@ void drawSwitches()
     {
         plotBox(124, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(124, 228, 12, 10, BLACK, LIGHT_GRAY);
-        plotString(1, 4, "MATH ENGINE: ONLINE");
+        plotString(1, 4, "MATH ENGINE:                         ONLINE ");
 
     }
     else
     {
         plotBox(124, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(124, 228, 12, 10, BLACK, RED);
-        plotString(1, 4, "MATH ENGINE: OFFLINE");
+        plotString(1, 4, "MATH ENGINE:                         OFFLINE");
 
     }
     
@@ -1387,14 +1391,14 @@ void drawSwitches()
     {
         plotBox(144, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(144, 228, 12, 10, BLACK, LIGHT_GRAY);
-        plotString(1, 5, "RANGE SAFETY SYSTEM: ONLINE");
+        plotString(1, 5, "RANGE SAFETY SYSTEM:                 ONLINE ");
         
     }
     else
     {
         plotBox(144, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(144, 228, 12, 10, BLACK, RED);
-        plotString(1, 5, "RANGE SAFETY SYSTEM: OFFLINE");
+        plotString(1, 5, "RANGE SAFETY SYSTEM:                 OFFLINE");
 
     }
 
@@ -1402,14 +1406,14 @@ void drawSwitches()
     {
         plotBox(164, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(164, 228, 12, 10, BLACK, LIGHT_GRAY);
-        plotString(1, 6, "PROPELLANT TANK PRESSURIZATION: ONLINE");
+        plotString(1, 6, "PROPELLANT TANK PRESSURIZATION:      ONLINE ");
 
     }
     else
     {
         plotBox(164, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(164, 228, 12, 10, BLACK, RED);
-        plotString(1, 6, "PROPELLANT TANK PRESSURIZATION: OFFLINE");
+        plotString(1, 6, "PROPELLANT TANK PRESSURIZATION:      OFFLINE");
 
     }
 
@@ -1417,14 +1421,14 @@ void drawSwitches()
     {
         plotBox(184, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(184, 228, 12, 10, BLACK, LIGHT_GRAY);
-        plotString(1, 7, "IGNITION SEQUENCE: ONLINE");
+        plotString(1, 7, "IGNITION SEQUENCE:                   ONLINE ");
 
     }
     else
     {
         plotBox(184, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(184, 228, 12, 10, BLACK, RED);
-        plotString(1, 7, "IGNITION SEQUENCE: OFFLINE");
+        plotString(1, 7, "IGNITION SEQUENCE:                   OFFLINE");
 
     }
 
@@ -1432,14 +1436,14 @@ void drawSwitches()
     {
         plotBox(204, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(204, 228, 12, 10, BLACK, LIGHT_GRAY);
-        plotString(1, 8, "LAUNCH COMMIT: ONLINE");
+        plotString(1, 8, "LAUNCH COMMIT:                       ONLINE ");
 
     }
     else
     {
         plotBox(204, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(204, 228, 12, 10, BLACK, RED);
-        plotString(1, 8, "LAUNCH COMMIT: OFFLINE");
+        plotString(1, 8, "LAUNCH COMMIT:                       OFFLINE");
 
     }
 
@@ -1447,14 +1451,14 @@ void drawSwitches()
     {
         plotBox(224, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(224, 228, 12, 10, BLACK, LIGHT_GRAY);
-        plotString(1, 9, "THRUST VECTOR CONTROL: ONLINE");
+        plotString(1, 9, "THRUST VECTOR CONTROL:               ONLINE ");
 
     }
     else
     {
         plotBox(224, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(224, 228, 12, 10, BLACK, RED);
-        plotString(1, 9, "THRUST VECTOR CONTROL: OFFLINE");
+        plotString(1, 9, "THRUST VECTOR CONTROL:               OFFLINE");
 
     }
 
@@ -1462,14 +1466,14 @@ void drawSwitches()
     {
         plotBox(244, 218, 12, 10, BLACK, LIGHT_GREEN);
         plotBox(244, 228, 12, 10, BLACK, LIGHT_GRAY);
-        plotString(1, 10, "TELEMETRY SYSTEMS: ONLINE");
+        plotString(1, 10, "TELEMETRY SYSTEMS:                   ONLINE ");
 
     }
     else
     {
         plotBox(244, 218, 12, 10, BLACK, LIGHT_GRAY);
         plotBox(244, 228, 12, 10, BLACK, RED);
-        plotString(1, 10, "TELEMETRY SYSTEMS: OFFLINE");
+        plotString(1, 10, "TELEMETRY SYSTEMS:                   OFFLINE");
 
     }
 
