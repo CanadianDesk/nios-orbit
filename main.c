@@ -209,6 +209,7 @@ const unsigned short darsan_center[] = {
 
 /*==================FUNCTION PROTOTYPES==================*/
 
+void drawCenterPlanet();
 //waits for the v_sync signal to be high
 void wait_for_v_sync(VGA *vga);
 //initializes the VGA
