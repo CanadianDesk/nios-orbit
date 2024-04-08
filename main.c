@@ -26,6 +26,7 @@
 #define LIGHT_GREEN 0x87F0
 #define GREEN 0x07E0
 #define LIGHT_BLUE 0x07FF
+#define BRIGHT_RED 0xF810
 
 /*==================STRUCTS==================*/
 
@@ -285,6 +286,7 @@ enum Planet CURRENT_PLANET;
 double ROCKET_START_ANGLE;
 int PATH_ANIMATION_INDEX;
 int ORBIT_ANIMATION_INDEX = 0;
+int ORBIT_ANIMATION_ANGLE = 0;
 char SIMULATING_STRINGS[4][25] = {"Simulating.  ", "Simulating.. ", "Simulating...", "Simulating   "};
 
 //path animation timestep in seconds
@@ -1067,10 +1069,11 @@ void drawCenterPlanet()
 void drawStats()
 {
     //DRAW RED DOT FOR SHIP
-    plotPixel(160 + 100*cos(ORBIT_ANIMATION_INDEX * M_PI / 180), 120 + 100*sin(ORBIT_ANIMATION_INDEX * M_PI / 180), WHITE);
+    plotPixel(160 + 100*cos(ORBIT_ANIMATION_ANGLE * M_PI / 180), 120 + 100*sin(ORBIT_ANIMATION_ANGLE * M_PI / 180), BRIGHT_RED);
     //DRAW WHITE DOT TO COVER PREVIOUS RED DOT
-    // plotPixel(160 + 100*cos(ORBIT_ANIMATION_INDEX == 0 ? 360 : ORBIT_ANIMATION_INDEX - 1), 120 + 100*sin(ORBIT_ANIMATION_INDEX == 0 ? 360 : ORBIT_ANIMATION_INDEX - 1), WHITE);
-    // ORBIT_ANIMATION_INDEX = ORBIT_ANIMATION_INDEX == 360 ? 0 : ORBIT_ANIMATION_INDEX + 1;
+    plotPixel(160 + 100*cos((ORBIT_ANIMATION_ANGLE - 1) * M_PI / 180), 120 + 100*sin((ORBIT_ANIMATION_ANGLE - 1) * M_PI / 180), WHITE);
+    ORBIT_ANIMATION_INDEX++;
+    ORBIT_ANIMATION_ANGLE = ORBIT_ANIMATION_INDEX % 2 == 0 ? ORBIT_ANIMATION_ANGLE + 1 : ORBIT_ANIMATION_ANGLE;
 
     //PLOT ALTITUDE
     char altitude_string[50] = "Altitude: ";
@@ -1332,7 +1335,7 @@ void drawSwitches()
      //outline box for switches
     plotBox(60, 216, 200, 24, WHITE, GRAY);
     //draw the 10 switches
-    plotBox(0, 0, 185, 50, WHITE, GRAY);
+    // plotBox(0, 0, 185, 50, WHITE, GRAY);
     
     if(POWER_ON)
     {
@@ -1991,6 +1994,7 @@ void reset()
 
     PATH_ANIMATION_INDEX = 0;
     ORBIT_ANIMATION_INDEX = 0;
+    ORBIT_ANIMATION_ANGLE = 0;
 
 
 }
