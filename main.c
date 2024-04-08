@@ -354,52 +354,52 @@ int main()
             
         }
 
-        char mouse_pos[25];
-        sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
-        char current_state[25] = "";
-        strcpy(current_state, "");
-        switch (CURRENT_STATE)
-        {
-            case TITLE:
-                sprintf(current_state, "State: TITLE         ");
-                break;
-            case IDLE:
-                sprintf(current_state, "State: IDLE           ");
-                break;
-            case CHANGE_ANGLE:
-                sprintf(current_state, "State: CHANGE_ANGLE ");
-                break;
-            case CHANGE_SPEED:
-                sprintf(current_state, "State: CHANGE_SPEED ");
-                break;
-            case CHANGE_MASS:
-                sprintf(current_state, "State: CHANGE_MASS   ");
-                break;  
-            case ROCKET_READY:
-                sprintf(current_state, "State: ROCKET_READY  ");
-                break;
-            case CHANGE_PLANET:
-                sprintf(current_state, "State: CHANGE_PLANET   ");
-                break;
-            case ROCKET_LAUNCH:
-                sprintf(current_state, "State: ROCKET_LAUNCH   ");
-                break;
-            case ROCKET_PATH:
-                sprintf(current_state, "State: ROCKET_PATH    ");
-                break;
-            case ROCKET_CRASH:
-                sprintf(current_state, "State: ROCKET_CRASH    ");
-                break;
-            case END:
-                sprintf(current_state, "State: END             ");
-                break;
-            default:
-                sprintf(current_state, "State: ERROR           ");
-                break;
-        }
+        // char mouse_pos[25];
+        // sprintf(mouse_pos, "X: %d, Y: %d", X_POSITION, Y_POSITION);
+        // char current_state[25] = "";
+        // strcpy(current_state, "");
+        // switch (CURRENT_STATE)
+        // {
+        //     case TITLE:
+        //         sprintf(current_state, "State: TITLE         ");
+        //         break;
+        //     case IDLE:
+        //         sprintf(current_state, "State: IDLE           ");
+        //         break;
+        //     case CHANGE_ANGLE:
+        //         sprintf(current_state, "State: CHANGE_ANGLE ");
+        //         break;
+        //     case CHANGE_SPEED:
+        //         sprintf(current_state, "State: CHANGE_SPEED ");
+        //         break;
+        //     case CHANGE_MASS:
+        //         sprintf(current_state, "State: CHANGE_MASS   ");
+        //         break;  
+        //     case ROCKET_READY:
+        //         sprintf(current_state, "State: ROCKET_READY  ");
+        //         break;
+        //     case CHANGE_PLANET:
+        //         sprintf(current_state, "State: CHANGE_PLANET   ");
+        //         break;
+        //     case ROCKET_LAUNCH:
+        //         sprintf(current_state, "State: ROCKET_LAUNCH   ");
+        //         break;
+        //     case ROCKET_PATH:
+        //         sprintf(current_state, "State: ROCKET_PATH    ");
+        //         break;
+        //     case ROCKET_CRASH:
+        //         sprintf(current_state, "State: ROCKET_CRASH    ");
+        //         break;
+        //     case END:
+        //         sprintf(current_state, "State: END             ");
+        //         break;
+        //     default:
+        //         sprintf(current_state, "State: ERROR           ");
+        //         break;
+        // }
 
-        plotString(0, 1, current_state);       
-        plotString(0, 0, mouse_pos);
+        // plotString(0, 1, current_state);       
+        // plotString(0, 0, mouse_pos);
         eraseCursor();
         drawCurrentScene(CURRENT_STATE, CURRENT_PLANET, ROCKET_START_ANGLE, X_POSITION, Y_POSITION);
         drawCursor(X_POSITION, Y_POSITION, CURRENT_STATE);
@@ -813,10 +813,11 @@ void plotBackground(enum State state, enum Planet planet)
         plotCircle(160, 120, 100, WHITE);
         return;
     }
-    if (state == ROCKET_CRASH && crash[X_RES * y + x] != 0x0)
+    if (state == ROCKET_CRASH)
         for (int y = 0; y < Y_RES; y++)
             for (int x = 0; x < X_RES; x++)
-                plotPixel(x, y, crash[X_RES * y + x]);
+                if (crash[X_RES * y + x] != 0x0)
+                    plotPixel(x, y, crash[X_RES * y + x]);
 
     for (int y = 0; y < Y_RES; y++)
     {
